@@ -24,4 +24,3 @@ getState    KEYWORD2
 # Constants (LITERAL1)
 #######################################
 
-

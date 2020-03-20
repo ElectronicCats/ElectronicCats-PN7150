@@ -34,8 +34,8 @@
 #else // Arduino Due
 #define WIRE Wire1
 #endif
-// TODO :	i2c_t3.h ensures a maximum I2C message of 259, which is sufficient. Other I2C implementations have shorter buffers (32 bytes)
-//			See : https://github.com/Strooom/PN7150/issues/7
+// TODO :   i2c_t3.h ensures a maximum I2C message of 259, which is sufficient. Other I2C implementations have shorter buffers (32 bytes)
+//          See : https://github.com/Strooom/PN7150/issues/7
 #endif
 
 class PN7150Interface

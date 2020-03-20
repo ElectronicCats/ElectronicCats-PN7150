@@ -8,32 +8,32 @@
 // ###                                                                       ###
 // #############################################################################
 
-#ifndef NFCReaderWriter_h // Header Guard
-#define NFCReaderWriter_h
+#ifndef NFCTarget_h // Header Guard
+#define NFCTarget_h
 
 #include <Arduino.h> // Gives us access to all typical Arduino types and functions
 
 class NCI; // Forward declaration
 
-enum class ReaderWriterState : uint8_t
+enum class NFCTargetState : uint8_t
 {
     initializing,
-    noTagPresent,
-    singleTagPresent,
-    multipleTagsPresent
+    startDiscovery,
+    picc
 };
 
-class NFCReaderWriter
+class NFCTarget
 {
-private:
-    NCI &theNCI; // reference to the NCI instance being used to talk to the NFC device
-    ReaderWriterState theState;
+    private:
+        NCI &theNCI; // reference to the NCI instance being used to talk to the NFC device
+        NFCTargetState theState;
 
-public:
-    NFCReaderWriter(NCI &theNCI); // constructor
-    void begin();            // initialize the Reader/Writer application. Will in its turn initialize the NCI layer and the HW interface on which the application relies
-    void run();
-    ReaderWriterState getState() const;
+    public:
+        NFCTarget(NCI &theNCI); // constructor
+        bool run();            // initialize the Reader/Writer application. Will in its turn initialize the NCI layer and the HW interface on which the application relies
+        void initialize();                                  // initialize the Reader/Writer application. Will in its turn initialize the NCI layer and the HW interface on which the application relies
+
+        NFCTargetState getState() const;
 };
 
 #endif
