@@ -283,8 +283,6 @@ public:
     void PrintBuf(const byte *data, const uint32_t numBytes);
     bool ReaderActivateNext(RfIntf_t *pRfIntf);
     bool ConfigureSettings(void);
-    void NdefPull_Cb(unsigned char *pNdefMessage, unsigned short NdefMessageSize);
-    void NdefPush_Cb(unsigned char *pNdefRecord, unsigned short NdefRecordSize);
     bool NxpNci_FactoryTest_Prbs(NxpNci_TechType_t type, NxpNci_Bitrate_t bitrate);
     bool NxpNci_FactoryTest_RfOn(void);
     void ProcessP2pMode(RfIntf_t RfIntf);
