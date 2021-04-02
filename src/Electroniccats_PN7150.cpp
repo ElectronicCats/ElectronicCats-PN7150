@@ -26,6 +26,8 @@ uint8_t gNextTag_Protocol = PROT_UNDETERMINED;
 uint8_t NCIStartDiscovery_length = 0;
 uint8_t NCIStartDiscovery[30];
 
+uint8_t flagMessage = false;
+
 unsigned char DiscoveryTechnologiesCE[] = { //Emulation
     MODE_LISTEN | MODE_POLL};
 
@@ -59,19 +61,30 @@ Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uin
 
 uint8_t Electroniccats_PN7150::begin()
 {
-    Wire.begin();
+    
     digitalWrite(_VENpin, HIGH);
     delay(1);
     digitalWrite(_VENpin, LOW);
     delay(1);
     digitalWrite(_VENpin, HIGH);
     delay(3);
+    Wire.begin();
+    #ifdef IRQ_INTERRUPT
+      attachInterrupt(digitalPinToInterrupt(_IRQpin), hasMessage, RISING);
+    #endif
     return SUCCESS;
 }
 
-bool Electroniccats_PN7150::hasMessage() const
+void Electroniccats_PN7150::hasMessage()
 {
-    return (HIGH == digitalRead(_IRQpin)); // PN7150 indicates it has data by driving IRQ signal HIGH
+    #ifdef IRQ_INTERRUPT
+      flagMessage = true;
+    #else
+       if(digitalRead(_IRQpin) == HIGH); // PN7150 indicates it has data by driving IRQ signal HIGH
+       {
+           flagMessage = true;
+       }
+    #endif
 }
 
 uint8_t Electroniccats_PN7150::writeData(uint8_t txBuffer[], uint32_t txBufferLevel) const
@@ -94,7 +107,7 @@ uint8_t Electroniccats_PN7150::writeData(uint8_t txBuffer[], uint32_t txBufferLe
 uint32_t Electroniccats_PN7150::readData(uint8_t rxBuffer[]) const
 {
     uint32_t bytesReceived; // keeps track of how many bytes we actually received
-    if (hasMessage())
+    if (flagMessage)
     {                                                              // only try to read something if the PN7150 indicates it has something
         bytesReceived = Wire.requestFrom(_I2Caddress, (uint8_t)3); // first reading the header, as this contains how long the payload will be
 
@@ -113,6 +126,7 @@ uint32_t Electroniccats_PN7150::readData(uint8_t rxBuffer[]) const
             }
             index = 0;
         }
+        flagMessage =false;
     }
     else
     {

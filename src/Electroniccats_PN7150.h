@@ -53,6 +53,8 @@
 #define ERROR NFC_ERROR
 #define MAX_NCI_FRAME_SIZE 258
 
+#define IRQ_INTERRUPT 1
+
 /*
  * Flag definition used for NFC library configuration
  */
@@ -259,6 +261,7 @@ private:
     uint32_t rxMessageLength; // length of the last message received. As these are not 0x00 terminated, we need to remember the length
     uint8_t gNfcController_generation = 0;
     uint8_t gNfcController_fw_version[3] = {0};
+    static void hasMessage();
 
 public:
     Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress);
@@ -266,7 +269,6 @@ public:
     uint8_t begin(void);
     uint8_t writeData(uint8_t data[], uint32_t dataLength) const; // write data from DeviceHost to PN7150. Returns success (0) or Fail (> 0)
     uint32_t readData(uint8_t data[]) const;                      // read data from PN7150, returns the amount of bytes read
-    bool hasMessage() const;
     uint8_t ConfigMode(uint8_t modeSE);
     uint8_t StartDiscovery(uint8_t modeSE);
     uint8_t connectNCI();
