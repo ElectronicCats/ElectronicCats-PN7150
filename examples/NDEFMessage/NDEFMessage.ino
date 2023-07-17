@@ -72,14 +72,16 @@ void setup() {
       ;
   }
   nfc.StartDiscovery(mode);  // NCI Discovery mode
-  Serial.println("Waiting for a NDEF device...");
 
   mode = 3;
   resetMode();
+  Serial.println("Waiting for a NDEF device...");
 }
 
 void loop() {
-  if (!nfc.WaitForDiscoveryNotification(&RfInterface)) {  // Waiting to detect
+	Serial.print(".");
+
+  if (!nfc.WaitForDiscoveryNotification(&RfInterface, 1000)) {  // Waiting to detect
     if (RfInterface.Interface == INTF_NFCDEP) {
       if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN)
         Serial.println(" - P2P TARGET MODE: Activated from remote Initiator");
@@ -96,7 +98,7 @@ void loop() {
 }
 
 void resetMode() {  // Reset the configuration mode after each reading
-  Serial.println("Re-initializing...");
+  Serial.println("\nRe-initializing...");
   nfc.ConfigMode(mode);
   nfc.StartDiscovery(mode);
 }
