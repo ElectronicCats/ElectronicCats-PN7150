@@ -163,6 +163,7 @@ bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, v
 void P2P_NDEF_RegisterPullCallback(void *pCb)
 {
     pP2P_NDEF_PullCb = (P2P_NDEF_Callback_t *)pCb;
+    // pP2P_NDEF_PullCb = reinterpret_cast<P2P_NDEF_Callback_t *>(pCb);
 }
 
 void P2P_NDEF_Reset(void)

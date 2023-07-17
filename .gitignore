@@ -2,3 +2,4 @@
 src/sync.ffs_db
 
 .DS_Store
+.vscode/

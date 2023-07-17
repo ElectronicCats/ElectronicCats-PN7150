@@ -23,6 +23,53 @@ RfIntf_t RfInterface;                                              //Intarface t
 
 uint8_t mode = 3;                                                  // modes: 1 = Reader/ Writer, 2 = Emulation, 3 = Peer to peer P2P
 
+void setup() {
+  Serial.begin(9600);
+  while (!Serial);
+  Serial.println("NDEF Message with PN7150");
+  
+  /* Register NDEF message to be sent to remote peer */
+  //P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), *NdefPush_Cb);
+  /* Register callback for reception of NDEF message from remote peer */
+//   P2P_NDEF_RegisterPullCallback(*NdefPull_Cb);
+  P2P_NDEF_RegisterPullCallback(reinterpret_cast<void*>(NdefPull_Cb));
+
+  Serial.println("Initializing...");
+  if (nfc.connectNCI()) { //Wake up the board
+    Serial.println("Error while setting up the mode, check connections!");
+    while (1);
+  }
+
+  if (nfc.ConfigureSettings()) {
+    Serial.println("The Configure Settings failed!");
+    while (1);
+  }
+
+  if (nfc.ConfigMode(mode)) { //Set up the configuration mode
+    Serial.println("The Configure Mode failed!!");
+    while (1);
+  }
+  nfc.StartDiscovery(mode); //NCI Discovery mode
+  Serial.println("Waiting for a NDEF device...");
+}
+
+void loop() {
+  if (!nfc.WaitForDiscoveryNotification(&RfInterface)) { // Waiting to detect
+    if (RfInterface.Interface == INTF_NFCDEP) {
+      if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN)
+        Serial.println(" - P2P TARGET MODE: Activated from remote Initiator");
+      else
+        Serial.println(" - P2P INITIATOR MODE: Remote Target activated");
+
+      /* Process with SNEP for NDEF exchange */
+      nfc.ProcessP2pMode(RfInterface);
+      Serial.println("Peer lost!");
+    }
+    ResetMode();
+  }
+  delay(500);
+}
+
 void ResetMode() {                                 //Reset the configuration mode after each reading
   Serial.println("Re-initializing...");
   nfc.ConfigMode(mode);
@@ -177,50 +224,3 @@ void NdefPush_Cb(unsigned char *pNdefRecord, unsigned short NdefRecordSize)
     Serial.println("--- NDEF Record sent");
 }
 //#endif // if defined P2P_SUPPORT || defined CARDEMU_SUPPORT
-
-
-void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-  Serial.println("NDEF Message with PN7150");
-  
-  /* Register NDEF message to be sent to remote peer */
-    //P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), *NdefPush_Cb);
-    /* Register callback for reception of NDEF message from remote peer */
-    P2P_NDEF_RegisterPullCallback(*NdefPull_Cb);
-
-  Serial.println("Initializing...");
-  if (nfc.connectNCI()) { //Wake up the board
-    Serial.println("Error while setting up the mode, check connections!");
-    while (1);
-  }
-
-  if (nfc.ConfigureSettings()) {
-    Serial.println("The Configure Settings failed!");
-    while (1);
-  }
-
-  if (nfc.ConfigMode(mode)) { //Set up the configuration mode
-    Serial.println("The Configure Mode failed!!");
-    while (1);
-  }
-  nfc.StartDiscovery(mode); //NCI Discovery mode
-  Serial.println("Waiting for a NDEF device...");
-}
-
-void loop() {
-  if (!nfc.WaitForDiscoveryNotification(&RfInterface)) { // Waiting to detect
-    if (RfInterface.Interface == INTF_NFCDEP) {
-      if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN)
-        Serial.println(" - P2P TARGET MODE: Activated from remote Initiator");
-      else
-        Serial.println(" - P2P INITIATOR MODE: Remote Target activated");
-
-      /* Process with SNEP for NDEF exchange */
-      nfc.ProcessP2pMode(RfInterface);
-      Serial.println("Peer lost!");
-    }
-    ResetMode();
-  }
-  delay(500);
-}
