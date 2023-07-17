@@ -1,13 +1,13 @@
 /**
- * NXP PN7150 Driver 
- * Porting authors: 
+ * NXP PN7150 Driver
+ * Porting authors:
  *        Salvador Mendoza - @Netxing - salmg.net
  *        Andres Sabas - Electronic Cats - Electroniccats.com
  *
  *  November 2020
- * 
- * This code is beerware; if you see me (or any other collaborator 
- * member) at the local, and you've found our code helpful, 
+ *
+ * This code is beerware; if you see me (or any other collaborator
+ * member) at the local, and you've found our code helpful,
  * please buy us a round!
  * Distributed as-is; no warranty is given.
  *
@@ -49,23 +49,25 @@ unsigned char DiscoveryTechnologiesP2P[] = { //P2P
     MODE_LISTEN | TECH_ACTIVE_NFCA,
     MODE_LISTEN | TECH_ACTIVE_NFCF};
 
-Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress) : _IRQpin(IRQpin),
-                                                                                                   _VENpin(VENpin),
-                                                                                                   _I2Caddress(I2Caddress)
+Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin,
+                uint8_t I2Caddress, TwoWire *wire) : _IRQpin(IRQpin), _VENpin(VENpin), _I2Caddress(I2Caddress), _wire(wire)
 {
     pinMode(_IRQpin, INPUT);
-    pinMode(_VENpin, OUTPUT);
+    if (_VENpin != 255)
+        pinMode(_VENpin, OUTPUT);
 }
 
 uint8_t Electroniccats_PN7150::begin()
 {
-    Wire.begin();
-    digitalWrite(_VENpin, HIGH);
-    delay(1);
-    digitalWrite(_VENpin, LOW);
-    delay(1);
-    digitalWrite(_VENpin, HIGH);
-    delay(3);
+    _wire->begin();
+    if (_VENpin != 255) {
+        digitalWrite(_VENpin, HIGH);
+        delay(1);
+        digitalWrite(_VENpin, LOW);
+        delay(1);
+        digitalWrite(_VENpin, HIGH);
+        delay(3);
+    }
     return SUCCESS;
 }
 
@@ -77,12 +79,18 @@ bool Electroniccats_PN7150::hasMessage() const
 uint8_t Electroniccats_PN7150::writeData(uint8_t txBuffer[], uint32_t txBufferLevel) const
 {
     uint32_t nmbrBytesWritten = 0;
-    Wire.beginTransmission((uint8_t)_I2Caddress);
-    nmbrBytesWritten = Wire.write(txBuffer, txBufferLevel);
+    _wire->beginTransmission((uint8_t)_I2Caddress); //configura transmision
+    nmbrBytesWritten = _wire->write(txBuffer, (size_t)(txBufferLevel)); //carga en buffer
+    #ifdef DEBUG2
+        Serial.println("[DEBUG] written bytes = 0x"+String(nmbrBytesWritten,HEX));
+    #endif
     if (nmbrBytesWritten == txBufferLevel)
     {
         byte resultCode;
-        resultCode = Wire.endTransmission();
+        resultCode = _wire->endTransmission(); //envio de datos segun yo
+        #ifdef DEBUG2
+        Serial.println("[DEBUG] write data code = 0x"+String(resultCode,HEX));
+        #endif
         return resultCode;
     }
     else
@@ -96,19 +104,34 @@ uint32_t Electroniccats_PN7150::readData(uint8_t rxBuffer[]) const
     uint32_t bytesReceived; // keeps track of how many bytes we actually received
     if (hasMessage())
     {                                                              // only try to read something if the PN7150 indicates it has something
-        bytesReceived = Wire.requestFrom(_I2Caddress, (uint8_t)3); // first reading the header, as this contains how long the payload will be
-
-        rxBuffer[0] = Wire.read();
-        rxBuffer[1] = Wire.read();
-        rxBuffer[2] = Wire.read();
+        bytesReceived = _wire->requestFrom(_I2Caddress, (uint8_t)3); // first reading the header, as this contains how long the payload will be
+        //Imprimir datos de bytes received, tratar de extraer con funcion read
+        //Leer e inyectar directo al buffer los siguientes 3
+        #ifdef DEBUG2
+        Serial.println("[DEBUG] bytesReceived = 0x"+String(bytesReceived,HEX));
+        #endif
+        rxBuffer[0] = _wire->read();
+        rxBuffer[1] = _wire->read();
+        rxBuffer[2] = _wire->read();
+        #ifdef DEBUG2
+        for(int i=0;i<3;i++){
+             Serial.println("[DEBUG] Byte["+String(i)+"] = 0x"+String(rxBuffer[i],HEX));
+        }
+        #endif
         uint8_t payloadLength = rxBuffer[2];
         if (payloadLength > 0)
         {
-            bytesReceived += Wire.requestFrom(_I2Caddress, (uint8_t)payloadLength); // then reading the payload, if any
+            bytesReceived += _wire->requestFrom(_I2Caddress, (uint8_t)payloadLength); // then reading the payload, if any
+            #ifdef DEBUG2
+            Serial.println("[DEBUG] payload bytes = 0x"+String(bytesReceived-3,HEX));
+            #endif
             uint32_t index = 3;
             while (index < bytesReceived)
             {
-                rxBuffer[index] = Wire.read();
+                rxBuffer[index] = _wire->read();
+                #ifdef DEBUG2
+                Serial.println("[DEBUG] payload["+String(index)+"] = 0x"+String(rxBuffer[index],HEX));
+                #endif
                 index++;
             }
             index = 0;
@@ -209,12 +232,13 @@ uint8_t Electroniccats_PN7150::connectNCI()
     gNfcController_fw_version[0] = rxBuffer[17 + rxBuffer[8]]; //0xROM_CODE_V
     gNfcController_fw_version[1] = rxBuffer[18 + rxBuffer[8]]; //0xFW_MAJOR_NO
     gNfcController_fw_version[2] = rxBuffer[19 + rxBuffer[8]]; //0xFW_MINOR_NO
-#ifdef SerialUSB
+    #ifdef DEBUG
     Serial.println("0xROM_CODE_V: " + String(gNfcController_fw_version[0], HEX));
     Serial.println("FW_MAJOR_NO: " + String(gNfcController_fw_version[1], HEX));
     Serial.println("0xFW_MINOR_NO: " + String(gNfcController_fw_version[2], HEX));
     Serial.println("gNfcController_generation: " + String(gNfcController_generation, HEX));
-#endif
+    #endif
+
     return SUCCESS;
 }
 
@@ -439,18 +463,22 @@ bool Electroniccats_PN7150::CardModeSend(unsigned char *pData, unsigned char Dat
 
 bool Electroniccats_PN7150::CardModeReceive(unsigned char *pData, unsigned char *pDataSize)
 {
+    #ifdef DEBUG2
+        Serial.println("[DEBUG] cardModeReceive exec");
+    #endif
     bool status = NFC_ERROR;
     uint8_t Ans[MAX_NCI_FRAME_SIZE];
 
-    (void)writeData(Ans, sizeof(Ans));
+    (void)writeData(Ans, 255);
     getMessage(2000);
 
     /* Is data packet ? */
     if ((rxBuffer[0] == 0x00) && (rxBuffer[1] == 0x00))
     {
-#ifdef SerialUSB
+
+        #ifdef DEBUG2
         Serial.println(rxBuffer[2]);
-#endif
+        #endif
         *pDataSize = rxBuffer[2];
         memcpy(pData, &rxBuffer[3], *pDataSize);
         status = NFC_SUCCESS;
@@ -565,14 +593,14 @@ bool Electroniccats_PN7150::WaitForDiscoveryNotification(RfIntf_t *pRfIntf, uint
     uint8_t saved_NTF[7];
 
     gNextTag_Protocol = PROT_UNDETERMINED;
+    bool getFlag = false;
 wait:
     do
     {
-        getMessage(
+        getFlag = getMessage(
             tout > 0 ? tout : 1337
         ); //Infinite loop, waiting for response
-    } while ((rxBuffer[0] != 0x61) || ((rxBuffer[1] != 0x05) && (rxBuffer[1] != 0x03)));
-
+    } while (((rxBuffer[0] != 0x61) || ((rxBuffer[1] != 0x05) && (rxBuffer[1] != 0x03))) && (getFlag == true));
     gNextTag_Protocol = PROT_UNDETERMINED;
 
     /* Is RF_INTF_ACTIVATED_NTF ? */
@@ -1211,6 +1239,302 @@ bool Electroniccats_PN7150::ConfigureSettings(void)
         isResetRequired = true;
         (void)writeData(NxpNci_CORE_CONF, sizeof(NxpNci_CORE_CONF));
         getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CORE_CONF");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+
+#if NXP_CORE_STANDBY
+    if (sizeof(NxpNci_CORE_STANDBY) != 0)
+    {
+
+        (void)(writeData(NxpNci_CORE_STANDBY, sizeof(NxpNci_CORE_STANDBY)));
+        getMessage();
+        if ((rxBuffer[0] != 0x4F) || (rxBuffer[1] != 0x00) || (rxBuffer[3] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CORE_STANDBY");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+
+    /* All further settings are not versatile, so configuration only applied if there are changes (application build timestamp)
+       or in case of PN7150B0HN/C11004 Anti-tearing recovery procedure inducing RF setings were restored to their default value */
+#if (NXP_CORE_CONF_EXTN | NXP_CLK_CONF | NXP_TVDD_CONF | NXP_RF_CONF)
+    /* First read timestamp stored in NFC Controller */
+    if (gNfcController_generation == 1)
+        NCIReadTS[5] = 0x0F;
+    (void)writeData(NCIReadTS, sizeof(NCIReadTS));
+    getMessage();
+    if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x03) || (rxBuffer[3] != 0x00))
+    {
+#ifdef SerialUSB
+        Serial.println("read timestamp ");
+#endif
+        return ERROR;
+    }
+    /* Then compare with current build timestamp, and check RF setting restauration flag */
+    /*if(!memcmp(&rxBuffer[8], currentTS, sizeof(currentTS)) && (gRfSettingsRestored_flag == false))
+    {
+        // No change, nothing to do
+    }
+    else
+    {
+        */
+    /* Apply settings */
+#if NXP_CORE_CONF_EXTN
+    if (sizeof(NxpNci_CORE_CONF_EXTN) != 0)
+    {
+        (void)writeData(NxpNci_CORE_CONF_EXTN, sizeof(NxpNci_CORE_CONF_EXTN));
+        getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CORE_CONF_EXTN");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+
+#if NXP_CLK_CONF
+    if (sizeof(NxpNci_CLK_CONF) != 0)
+    {
+        isResetRequired = true;
+
+        (void)writeData(NxpNci_CLK_CONF, sizeof(NxpNci_CLK_CONF));
+        getMessage();
+        //NxpNci_HostTransceive(NxpNci_CLK_CONF, sizeof(NxpNci_CLK_CONF), Answer, sizeof(Answer), &AnswerSize);
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CLK_CONF");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+
+#if NXP_TVDD_CONF
+    if (NxpNci_CONF_size != 0)
+    {
+
+        (void)writeData(NxpNci_TVDD_CONF_2ndGen, sizeof(NxpNci_TVDD_CONF_2ndGen));
+        getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CONF_size");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+
+#if NXP_RF_CONF
+    if (NxpNci_CONF_size != 0)
+    {
+
+        (void)writeData(NxpNci_RF_CONF_2ndGen, sizeof(NxpNci_RF_CONF_2ndGen));
+        getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("NxpNci_CONF_size");
+#endif
+            return ERROR;
+        }
+    }
+#endif
+    /* Store curent timestamp to NFC Controller memory for further checks */
+    if (gNfcController_generation == 1)
+        NCIWriteTS[5] = 0x0F;
+    memcpy(&NCIWriteTS[7], currentTS, sizeof(currentTS));
+    (void)writeData(NCIWriteTS, sizeof(NCIWriteTS));
+    getMessage();
+    if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
+    {
+#ifdef SerialUSB
+        Serial.println("NFC Controller memory");
+#endif
+        return ERROR;
+    }
+    //}
+#endif
+
+    if (isResetRequired)
+    {
+        /* Reset the NFC Controller to insure new settings apply */
+        (void)writeData(NCICoreReset, sizeof(NCICoreReset));
+        getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x00) || (rxBuffer[3] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("insure new settings apply");
+#endif
+            return ERROR;
+        }
+
+        (void)writeData(NCICoreInit, sizeof(NCICoreInit));
+        getMessage();
+        if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
+        {
+#ifdef SerialUSB
+            Serial.println("insure new settings apply 2");
+#endif
+            return ERROR;
+        }
+    }
+    return SUCCESS;
+}
+
+bool Electroniccats_PN7150::ConfigureSettings(uint8_t *uidcf, uint8_t uidlen)
+{
+
+#if NXP_CORE_CONF
+    /* NCI standard dedicated settings
+ * Refer to NFC Forum NCI standard for more details
+ */
+    uint8_t NxpNci_CORE_CONF[20] = {
+        0x20, 0x02, 0x05, 0x01, // CORE_SET_CONFIG_CMD 
+        0x00, 0x02, 0x00, 0x01  // TOTAL_DURATION 
+    };
+    
+    if(uidlen == 0)
+      uidlen = 8;    
+    else {
+      uidlen+= 10;
+      memcpy(&NxpNci_CORE_CONF[0], uidcf, uidlen);
+    }
+
+#endif
+
+#if NXP_CORE_CONF_EXTN
+    /* NXP-NCI extension dedicated setting
+ * Refer to NFC controller User Manual for more details
+ */
+    uint8_t NxpNci_CORE_CONF_EXTN[] = {
+        0x20, 0x02, 0x0D, 0x03, /* CORE_SET_CONFIG_CMD */
+        0xA0, 0x40, 0x01, 0x00, /* TAG_DETECTOR_CFG */
+        0xA0, 0x41, 0x01, 0x04, /* TAG_DETECTOR_THRESHOLD_CFG */
+        0xA0, 0x43, 0x01, 0x00  /* TAG_DETECTOR_FALLBACK_CNT_CFG */
+    };
+#endif
+
+#if NXP_CORE_STANDBY
+    /* NXP-NCI standby enable setting
+ * Refer to NFC controller User Manual for more details
+ */
+    uint8_t NxpNci_CORE_STANDBY[] = {0x2F, 0x00, 0x01, 0x01}; /* last byte indicates enable/disable */
+#endif
+
+#if NXP_TVDD_CONF
+    /* NXP-NCI TVDD configuration
+ * Refer to NFC controller Hardware Design Guide document for more details
+ */
+    /* RF configuration related to 1st generation of NXP-NCI controller (e.g PN7120) */
+    uint8_t NxpNci_TVDD_CONF_1stGen[] = {0x20, 0x02, 0x05, 0x01, 0xA0, 0x13, 0x01, 0x00};
+
+    /* RF configuration related to 2nd generation of NXP-NCI controller (e.g PN7150)*/
+#if (NXP_TVDD_CONF == 1)
+    /* CFG1: Vbat is used to generate the VDD(TX) through TXLDO */
+    uint8_t NxpNci_TVDD_CONF_2ndGen[] = {0x20, 0x02, 0x07, 0x01, 0xA0, 0x0E, 0x03, 0x02, 0x09, 0x00};
+#else
+    /* CFG2: external 5V is used to generate the VDD(TX) through TXLDO */
+    uint8_t NxpNci_TVDD_CONF_2ndGen[] = {0x20, 0x02, 0x07, 0x01, 0xA0, 0x0E, 0x03, 0x06, 0x64, 0x00};
+#endif
+#endif
+
+#if NXP_RF_CONF
+    /* NXP-NCI RF configuration
+ * Refer to NFC controller Antenna Design and Tuning Guidelines document for more details
+ */
+    /* RF configuration related to 1st generation of NXP-NCI controller (e.g PN7120) */
+    /* Following configuration is the default settings of PN7120 NFC Controller */
+    uint8_t NxpNci_RF_CONF_1stGen[] = {
+        0x20, 0x02, 0x38, 0x07,
+        0xA0, 0x0D, 0x06, 0x06, 0x42, 0x01, 0x00, 0xF1, 0xFF, /* RF_CLIF_CFG_TARGET          CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x06, 0x06, 0x44, 0xA3, 0x90, 0x03, 0x00, /* RF_CLIF_CFG_TARGET          CLIF_ANA_RX_REG */
+        0xA0, 0x0D, 0x06, 0x34, 0x2D, 0xDC, 0x50, 0x0C, 0x00, /* RF_CLIF_CFG_BR_106_I_RXA_P  CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x04, 0x06, 0x03, 0x00, 0x70,             /* RF_CLIF_CFG_TARGET          CLIF_TRANSCEIVE_CONTROL_REG */
+        0xA0, 0x0D, 0x03, 0x06, 0x16, 0x00,                   /* RF_CLIF_CFG_TARGET          CLIF_TX_UNDERSHOOT_CONFIG_REG */
+        0xA0, 0x0D, 0x03, 0x06, 0x15, 0x00,                   /* RF_CLIF_CFG_TARGET          CLIF_TX_OVERSHOOT_CONFIG_REG */
+        0xA0, 0x0D, 0x06, 0x32, 0x4A, 0x53, 0x07, 0x01, 0x1B  /* RF_CLIF_CFG_BR_106_I_TXA    CLIF_ANA_TX_SHAPE_CONTROL_REG */
+    };
+
+    /* RF configuration related to 2nd generation of NXP-NCI controller (e.g PN7150)*/
+    /* Following configuration relates to performance optimization of OM5578/PN7150 NFC Controller demo kit */
+    uint8_t NxpNci_RF_CONF_2ndGen[] = {
+        0x20, 0x02, 0x94, 0x11,
+        0xA0, 0x0D, 0x06, 0x04, 0x35, 0x90, 0x01, 0xF4, 0x01, /* RF_CLIF_CFG_INITIATOR        CLIF_AGC_INPUT_REG */
+        0xA0, 0x0D, 0x06, 0x06, 0x30, 0x01, 0x90, 0x03, 0x00, /* RF_CLIF_CFG_TARGET           CLIF_SIGPRO_ADCBCM_THRESHOLD_REG */
+        0xA0, 0x0D, 0x06, 0x06, 0x42, 0x02, 0x00, 0xFF, 0xFF, /* RF_CLIF_CFG_TARGET           CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x06, 0x20, 0x42, 0x88, 0x00, 0xFF, 0xFF, /* RF_CLIF_CFG_TECHNO_I_TX15693 CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x04, 0x22, 0x44, 0x23, 0x00,             /* RF_CLIF_CFG_TECHNO_I_RX15693 CLIF_ANA_RX_REG */
+        0xA0, 0x0D, 0x06, 0x22, 0x2D, 0x50, 0x34, 0x0C, 0x00, /* RF_CLIF_CFG_TECHNO_I_RX15693 CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x06, 0x32, 0x42, 0xF8, 0x00, 0xFF, 0xFF, /* RF_CLIF_CFG_BR_106_I_TXA     CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x06, 0x34, 0x2D, 0x24, 0x37, 0x0C, 0x00, /* RF_CLIF_CFG_BR_106_I_RXA_P   CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x06, 0x34, 0x33, 0x86, 0x80, 0x00, 0x70, /* RF_CLIF_CFG_BR_106_I_RXA_P   CLIF_AGC_CONFIG0_REG */
+        0xA0, 0x0D, 0x04, 0x34, 0x44, 0x22, 0x00,             /* RF_CLIF_CFG_BR_106_I_RXA_P   CLIF_ANA_RX_REG */
+        0xA0, 0x0D, 0x06, 0x42, 0x2D, 0x15, 0x45, 0x0D, 0x00, /* RF_CLIF_CFG_BR_848_I_RXA     CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x04, 0x46, 0x44, 0x22, 0x00,             /* RF_CLIF_CFG_BR_106_I_RXB     CLIF_ANA_RX_REG */
+        0xA0, 0x0D, 0x06, 0x46, 0x2D, 0x05, 0x59, 0x0E, 0x00, /* RF_CLIF_CFG_BR_106_I_RXB     CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x06, 0x44, 0x42, 0x88, 0x00, 0xFF, 0xFF, /* RF_CLIF_CFG_BR_106_I_TXB     CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x06, 0x56, 0x2D, 0x05, 0x9F, 0x0C, 0x00, /* RF_CLIF_CFG_BR_212_I_RXF_P   CLIF_SIGPRO_RM_CONFIG1_REG */
+        0xA0, 0x0D, 0x06, 0x54, 0x42, 0x88, 0x00, 0xFF, 0xFF, /* RF_CLIF_CFG_BR_212_I_TXF     CLIF_ANA_TX_AMPLITUDE_REG */
+        0xA0, 0x0D, 0x06, 0x0A, 0x33, 0x80, 0x86, 0x00, 0x70  /* RF_CLIF_CFG_I_ACTIVE         CLIF_AGC_CONFIG0_REG */
+    };
+#endif
+
+#if NXP_CLK_CONF
+    /* NXP-NCI CLOCK configuration
+ * Refer to NFC controller Hardware Design Guide document for more details
+ */
+#if (NXP_CLK_CONF == 1)
+    /* Xtal configuration */
+    uint8_t NxpNci_CLK_CONF[] = {
+        0x20, 0x02, 0x05, 0x01, /* CORE_SET_CONFIG_CMD */
+        0xA0, 0x03, 0x01, 0x08  /* CLOCK_SEL_CFG */
+    };
+#else
+    /* PLL configuration */
+    uint8_t NxpNci_CLK_CONF[] = {
+        0x20, 0x02, 0x09, 0x02, /* CORE_SET_CONFIG_CMD */
+        0xA0, 0x03, 0x01, 0x11, /* CLOCK_SEL_CFG */
+        0xA0, 0x04, 0x01, 0x01  /* CLOCK_TO_CFG */
+    };
+#endif
+#endif
+
+    uint8_t NCICoreReset[] = {0x20, 0x00, 0x01, 0x00};
+    uint8_t NCICoreInit[] = {0x20, 0x01, 0x00};
+    bool gRfSettingsRestored_flag = false;
+
+#if (NXP_TVDD_CONF | NXP_RF_CONF)
+    uint8_t *NxpNci_CONF;
+    uint16_t NxpNci_CONF_size = 0;
+#endif
+#if (NXP_CORE_CONF_EXTN | NXP_CLK_CONF | NXP_TVDD_CONF | NXP_RF_CONF)
+    uint8_t currentTS[32] = __TIMESTAMP__;
+    uint8_t NCIReadTS[] = {0x20, 0x03, 0x03, 0x01, 0xA0, 0x14};
+    uint8_t NCIWriteTS[7 + 32] = {0x20, 0x02, 0x24, 0x01, 0xA0, 0x14, 0x20};
+#endif
+    bool isResetRequired = false;
+
+    /* Apply settings */
+#if NXP_CORE_CONF
+    if (uidlen != 0) //sizeof(NxpNci_CORE_CONF) != 0)
+    {
+        isResetRequired = true;
+        (void)writeData(NxpNci_CORE_CONF, uidlen); //sizeof(NxpNci_CORE_CONF));
+        getMessage(100);
         if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x02) || (rxBuffer[3] != 0x00) || (rxBuffer[4] != 0x00))
         {
 #ifdef SerialUSB

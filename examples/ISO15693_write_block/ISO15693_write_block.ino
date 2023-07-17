@@ -49,7 +49,7 @@ void setup(){
   Serial.println("Waiting for an ISO15693 Card ...");
 }
 
-int ResetMode(){                                      //Reset the configuration mode after each reading
+void ResetMode(){                                      //Reset the configuration mode after each reading
   Serial.println("Re-initializing...");
   nfc.ConfigMode(mode);                               
   nfc.StartDiscovery(mode);

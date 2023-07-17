@@ -22,7 +22,7 @@ RfIntf_t RfInterface;                                              //Intarface t
 
 uint8_t mode = 3;                                                  // modes: 1 = Reader/ Writer, 2 = Emulation, 3 = Peer to peer P2P
 
-int ResetMode(){                                  //Reset the configuration mode after each reading
+void ResetMode(){                                  //Reset the configuration mode after each reading
   Serial.println("Re-initializing...");
   nfc.ConfigMode(mode);                               
   nfc.StartDiscovery(mode);

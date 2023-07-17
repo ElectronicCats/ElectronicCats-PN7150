@@ -2,18 +2,18 @@
 #define Electroniccats_PN7150_H
 /**
  * NXP PN7150 Driver
- * Porting uthors: 
+ * Porting uthors:
  *        Salvador Mendoza - @Netxing - salmg.net
  *        Andres Sabas - Electronic Cats - Electroniccats.com
  *
  *  November 2020
- * 
- * This code is beerware; if you see me (or any other collaborator 
- * member) at the local, and you've found our code helpful, 
+ *
+ * This code is beerware; if you see me (or any other collaborator
+ * member) at the local, and you've found our code helpful,
  * please buy us a round!
  * Distributed as-is; no warranty is given.
  *
- * A few methods and ideas were extract from 
+ * A few methods and ideas were extract from
  * https://github.com/Strooom/PN7150
  *
  */
@@ -27,13 +27,9 @@
 #include <i2c_t3.h>                           // Credits Brian "nox771" : see https://forum.pjrc.com/threads/21680-New-I2C-library-for-Teensy3
 #else
 #include <Wire.h>
-#if defined(__AVR__) || defined(__i386__) || defined(ARDUINO_ARCH_SAMD) || defined(ESP8266) || defined(ARDUINO_ARCH_STM32)
-#define WIRE Wire
-#else // Arduino Due
-#define WIRE Wire1
-#endif // TODO :   i2c_t3.h ensures a maximum I2C message of 259, which is sufficient. Other I2C implementations have shorter buffers (32 bytes)
 #endif
 
+#define NO_PN7150_RESET_PIN 255
 /* Following definitions specifies which settings will apply when NxpNci_ConfigureSettings()
  * API is called from the application
  */
@@ -250,6 +246,7 @@ class Electroniccats_PN7150
 {
 private:
     uint8_t _IRQpin, _VENpin, _I2Caddress;
+    TwoWire *_wire;
     uint8_t rxBuffer[MaxPayloadSize + MsgHeaderSize]; // buffer where we store bytes received until they form a complete message
     void setTimeOut(unsigned long);                   // set a timeOut for an expected next event, eg reception of Response after sending a Command
     bool isTimeOut() const;
@@ -261,7 +258,7 @@ private:
     uint8_t gNfcController_fw_version[3] = {0};
 
 public:
-    Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress);
+    Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress, TwoWire *wire = &Wire);
     int GetFwVersion();
     uint8_t begin(void);
     uint8_t writeData(uint8_t data[], uint32_t dataLength) const; // write data from DeviceHost to PN7150. Returns success (0) or Fail (> 0)
@@ -283,6 +280,7 @@ public:
     void PrintBuf(const byte *data, const uint32_t numBytes);
     bool ReaderActivateNext(RfIntf_t *pRfIntf);
     bool ConfigureSettings(void);
+    bool ConfigureSettings(uint8_t *nfcuid, uint8_t uidlen);
     bool NxpNci_FactoryTest_Prbs(NxpNci_TechType_t type, NxpNci_Bitrate_t bitrate);
     bool NxpNci_FactoryTest_RfOn(void);
     void ProcessP2pMode(RfIntf_t RfIntf);
