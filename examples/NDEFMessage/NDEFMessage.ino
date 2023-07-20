@@ -49,6 +49,8 @@ void setup() {
   // P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), *ndefPush_Cb);
   /* Register callback for reception of NDEF message from remote peer */
   //   P2P_NDEF_RegisterPullCallback(*ndefPull_Cb);
+
+  // ndefPull_Cb is called when a NDEF message is received from a remote peer
   P2P_NDEF_RegisterPullCallback(reinterpret_cast<void *>(ndefPull_Cb));
 
   Serial.println("Initializing...");
@@ -65,7 +67,7 @@ void setup() {
   }
 
   // TODO: Initialize the NFC controller with mode = 2 or 3 will fail, check this later
-	// Temporal fix: Initialize the NFC controller with mode = 1 and then change to mode = 2 or 3 with the resetMode() function
+  // Temporal fix: Initialize the NFC controller with mode = 1 and then change to mode = 2 or 3 with the resetMode() function
   if (nfc.ConfigMode(mode)) {  // Set up the configuration mode
     Serial.println("The Configure Mode failed!!");
     while (1)
@@ -75,23 +77,53 @@ void setup() {
 
   mode = 3;
   resetMode();
-  Serial.println("Waiting for a NDEF device...");
+  Serial.println("Waiting for an NDEF device...");
 }
 
 void loop() {
-	Serial.print(".");
+  Serial.print(".");
 
   if (!nfc.WaitForDiscoveryNotification(&RfInterface, 1000)) {  // Waiting to detect
-    if (RfInterface.Interface == INTF_NFCDEP) {
-      if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN)
+    Serial.println();
+    Serial.print("RfInterface: ");
+    switch (RfInterface.Interface) {
+      case INTF_ISODEP:
+        Serial.println("ISO-DEP");
+        break;
+      case INTF_NFCDEP:
+        Serial.println("NFC-DEP");
+        break;
+      case INTF_TAGCMD:
+        Serial.println("TAG");
+        break;
+      case INTF_FRAME:
+        Serial.println("FRAME");
+        break;
+      case INTF_UNDETERMINED:
+        Serial.println("UNDETERMINED");
+        break;
+      default:
+        Serial.println("UNKNOWN");
+        break;
+    }
+
+    if (RfInterface.Interface == INTF_NFCDEP || RfInterface.Interface == INTF_ISODEP) {
+      if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN) {
         Serial.println(" - P2P TARGET MODE: Activated from remote Initiator");
-      else
+      } else {
         Serial.println(" - P2P INITIATOR MODE: Remote Target activated");
+      }
 
       /* Process with SNEP for NDEF exchange */
       nfc.ProcessP2pMode(RfInterface);
       Serial.println("Peer lost!");
     }
+
+    // Wait for removal
+    nfc.ProcessReaderMode(RfInterface, PRESENCE_CHECK);
+    Serial.println("Device removed!");
+
+    nfc.StopDiscovery();
     resetMode();
   }
   delay(500);
@@ -199,7 +231,7 @@ void ndefPull_Cb(unsigned char *pNdefMessage, unsigned short NdefMessageSize) {
         break;
 
       case MEDIA_HANDOVER_BLE_SECURE:
-        Serial.print("   BLE secure Handover payload = ");
+        Serial.print("BLE secure Handover payload = ");
         // Serial.println(NdefRecord.recordPayload, NdefRecord.recordPayloadSize);
         break;
 
