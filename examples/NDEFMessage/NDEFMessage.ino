@@ -47,11 +47,10 @@ void setup() {
 
   /* Register NDEF message to be sent to remote peer */
   // P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), *ndefPush_Cb);
-  /* Register callback for reception of NDEF message from remote peer */
-  //   P2P_NDEF_RegisterPullCallback(*ndefPull_Cb);
 
+  /* Register callback for reception of NDEF message from remote peer */
   // ndefPull_Cb is called when a NDEF message is received from a remote peer
-  P2P_NDEF_RegisterPullCallback(reinterpret_cast<void *>(ndefPull_Cb));
+  P2P_NDEF_RegisterPullCallback(ndefPull_Cb);
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board

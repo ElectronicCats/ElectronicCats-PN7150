@@ -15,8 +15,10 @@
 
 #define P2P_NDEF_MAX_NDEF_MESSAGE_SIZE 240
 
+typedef void P2P_NDEF_Callback_t(unsigned char *, unsigned short);
+
 void P2P_NDEF_Reset(void);
 void P2P_NDEF_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size);
-void P2P_NDEF_RegisterPullCallback(void *pCb);
+void P2P_NDEF_RegisterPullCallback(P2P_NDEF_Callback_t pCb);
 bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, void *pCb);
 //void Sleep (unsigned int ms);

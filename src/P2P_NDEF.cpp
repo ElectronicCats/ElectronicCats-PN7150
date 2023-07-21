@@ -88,7 +88,7 @@ typedef struct
     unsigned char Sn[30];
 } P2P_NDEF_LlcpHeader_t;
 
-typedef void P2P_NDEF_Callback_t(unsigned char *, unsigned short);
+// typedef void P2P_NDEF_Callback_t(unsigned char *, unsigned short);
 
 static P2P_SnepClient_state_t eP2P_SnepClient_State = Initial;
 static P2P_NDEF_Callback_t *pP2P_NDEF_PushCb = NULL;
@@ -160,10 +160,11 @@ bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, v
     }
 }
 
-void P2P_NDEF_RegisterPullCallback(void *pCb)
+void P2P_NDEF_RegisterPullCallback(P2P_NDEF_Callback_t pCb)
 {
-    pP2P_NDEF_PullCb = (P2P_NDEF_Callback_t *)pCb;
-    // pP2P_NDEF_PullCb = reinterpret_cast<P2P_NDEF_Callback_t *>(pCb);
+    Serial.println("Callback registered");
+    // pP2P_NDEF_PullCb = (P2P_NDEF_Callback_t *) pCb;
+    pP2P_NDEF_PullCb = pCb;
 }
 
 void P2P_NDEF_Reset(void)
