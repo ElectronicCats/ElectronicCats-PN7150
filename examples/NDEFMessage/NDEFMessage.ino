@@ -139,6 +139,8 @@ void ndefPull_Cb(unsigned char *pNdefMessage, unsigned short NdefMessageSize) {
   NdefRecord_t NdefRecord;
   unsigned char save;
 
+  Serial.println("Processing Callback");
+
   if (pNdefMessage == NULL) {
     Serial.println("--- Provisioned buffer size too small or NDEF message empty");
     return;

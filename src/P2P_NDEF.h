@@ -14,6 +14,7 @@
 #include <Arduino.h>
 
 #define P2P_NDEF_MAX_NDEF_MESSAGE_SIZE 240
+#define DEBUG3
 
 typedef void P2P_NDEF_Callback_t(unsigned char *, unsigned short);
 

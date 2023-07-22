@@ -162,7 +162,9 @@ bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, v
 
 void P2P_NDEF_RegisterPullCallback(P2P_NDEF_Callback_t pCb)
 {
-    Serial.println("Callback registered");
+    #ifdef DEBUG3
+        Serial.println("Callback registered");
+    #endif
     // pP2P_NDEF_PullCb = (P2P_NDEF_Callback_t *) pCb;
     pP2P_NDEF_PullCb = pCb;
 }
@@ -181,12 +183,33 @@ void P2P_NDEF_Reset(void)
 
 void P2P_NDEF_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *pRsp, unsigned short *pRsp_size)
 {
+    #ifdef DEBUG3
+        // Serial.println("Processing callback");
+    #endif
     P2P_NDEF_LlcpHeader_t LlcpHeader;
 
     /* Initialize answer */
     *pRsp_size = 0;
 
     ParseLlcp(pCmd, Cmd_size, &LlcpHeader);
+
+    // Print case
+    #ifdef DEBUG3
+        Serial.print("Case: ");
+        if (LlcpHeader.Pdu == CONNECT) {
+            Serial.println("Connect");
+        } else if (LlcpHeader.Pdu == I) {
+            Serial.println("I");
+        } else if (LlcpHeader.Pdu == CC) {
+            Serial.println("CC");
+        } else if (LlcpHeader.Pdu == DM) {
+            Serial.println("DM");
+        } else if (LlcpHeader.Pdu == SYMM) {
+            Serial.println("SYMM");
+        } else {
+            Serial.println("Other");
+        }
+    #endif
 
     switch (LlcpHeader.Pdu)
     {
