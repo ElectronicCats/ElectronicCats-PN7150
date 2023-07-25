@@ -138,13 +138,13 @@ static void FillLlcp(P2P_NDEF_LlcpHeader_t LlcpHeader, unsigned char *pBuf)
     pBuf[1] = (LlcpHeader.Pdu << 6) + LlcpHeader.Dsap;
 }
 
-bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, void *pCb)
+bool P2P_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, P2P_NDEF_Callback_t pCb)
 {
     if (Message_size <= P2P_NDEF_MAX_NDEF_MESSAGE_SIZE)
     {
         pNdefMessage = pMessage;
         NdefMessage_size = Message_size;
-        pP2P_NDEF_PushCb = (P2P_NDEF_Callback_t *)pCb;
+        pP2P_NDEF_PushCb = pCb;
         /* Trigger sending dynamically new message */
         if (eP2P_SnepClient_State == NdefMsgSent)
         {

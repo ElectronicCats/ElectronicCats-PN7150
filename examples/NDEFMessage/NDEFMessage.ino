@@ -46,7 +46,7 @@ void setup() {
   Serial.println("NDEF Message with PN7150");
 
   /* Register NDEF message to be sent to remote peer */
-  // P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), *ndefPush_Cb);
+  P2P_NDEF_SetMessage((unsigned char *) NDEF_MESSAGE, sizeof(NDEF_MESSAGE), ndefPush_Cb);
 
   /* Register callback for reception of NDEF message from remote peer */
   // ndefPull_Cb is called when a NDEF message is received from a remote peer
@@ -83,28 +83,7 @@ void loop() {
   Serial.print(".");
 
   if (!nfc.WaitForDiscoveryNotification(&RfInterface, 1000)) {  // Waiting to detect
-    Serial.println();
-    Serial.print("RfInterface: ");
-    switch (RfInterface.Interface) {
-      case INTF_ISODEP:
-        Serial.println("ISO-DEP");
-        break;
-      case INTF_NFCDEP:
-        Serial.println("NFC-DEP");
-        break;
-      case INTF_TAGCMD:
-        Serial.println("TAG");
-        break;
-      case INTF_FRAME:
-        Serial.println("FRAME");
-        break;
-      case INTF_UNDETERMINED:
-        Serial.println("UNDETERMINED");
-        break;
-      default:
-        Serial.println("UNKNOWN");
-        break;
-    }
+    displayDeviceInfo();
 
     if (RfInterface.Interface == INTF_NFCDEP || RfInterface.Interface == INTF_ISODEP) {
       if ((RfInterface.ModeTech & MODE_LISTEN) == MODE_LISTEN) {
@@ -116,6 +95,8 @@ void loop() {
       /* Process with SNEP for NDEF exchange */
       nfc.ProcessP2pMode(RfInterface);
       Serial.println("Peer lost!");
+    } else {
+      Serial.println("Wrong discovery!");
     }
 
     // Wait for removal
@@ -246,3 +227,44 @@ void ndefPull_Cb(unsigned char *pNdefMessage, unsigned short NdefMessageSize) {
   Serial.println("");
 }
 // #endif // if defined P2P_SUPPORT || defined RW_SUPPORT
+
+void displayDeviceInfo() {
+  Serial.println();
+  Serial.print("RfInterface: ");
+  switch (RfInterface.Interface) {
+    case INTF_ISODEP:
+      Serial.println("ISO-DEP");
+      break;
+    case INTF_NFCDEP:
+      Serial.println("NFC-DEP");
+      break;
+    case INTF_TAGCMD:
+      Serial.println("TAG");
+      break;
+    case INTF_FRAME:
+      Serial.println("FRAME");
+      break;
+    case INTF_UNDETERMINED:
+      Serial.println("UNDETERMINED");
+      break;
+    default:
+      Serial.println("UNKNOWN");
+      break;
+  }
+
+  Serial.print("Mode: ");
+  switch (RfInterface.ModeTech) {
+    case MODE_POLL:
+      Serial.println("POLL");
+      break;
+    case MODE_LISTEN:
+      Serial.println("LISTEN");
+      break;
+    case MODE_MASK:
+      Serial.println("MASK");
+      break;
+    default:
+      Serial.println("UNKNOWN");
+      break;
+  }
+}
