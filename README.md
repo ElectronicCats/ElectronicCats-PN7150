@@ -37,7 +37,7 @@ Check the [API Documentation](/API.md) for more information about the methods av
 
 Please read the document  [**Contribution Manual**](https://github.com/ElectronicCats/electroniccats-cla/blob/main/electroniccats-contribution-manual.md)  which will show you how to contribute your changes to the project.
 
-✨ Thanks to all our [contributors](https://github.com/ElectronicCats/[repo-link]/graphs/contributors)! ✨
+✨ Thanks to all our [contributors](https://github.com/ElectronicCats/ElectronicCats-PN7150/graphs/contributors)! ✨
 
 See [**_Electronic Cats CLA_**](https://github.com/ElectronicCats/electroniccats-cla/blob/main/electroniccats-cla.md) for more information.
 
