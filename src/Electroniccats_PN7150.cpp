@@ -1,4 +1,4 @@
-/**
+/*
  * NXP PN7150 Driver
  * Porting authors:
  *        Salvador Mendoza - @Netxing - salmg.net
