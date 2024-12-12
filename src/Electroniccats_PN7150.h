@@ -33,6 +33,9 @@
 #include <Wire.h>
 #endif
 
+#define PN7150 0
+#define PN7160 1
+
 #define NO_PN7150_RESET_PIN 255
 /* Following definitions specifies which settings will apply when NxpNci_ConfigureSettings()
  * API is called from the application
@@ -100,7 +103,7 @@ typedef enum {
 class Electroniccats_PN7150 : public Mode {
  private:
   bool _hasBeenInitialized;
-  uint8_t _IRQpin, _VENpin, _I2Caddress;
+  uint8_t _IRQpin, _VENpin, _I2Caddress, _chipModel;
   TwoWire *_wire;
   RfIntf_t dummyRfInterface;
   uint8_t rxBuffer[MaxPayloadSize + MsgHeaderSize];  // buffer where we store bytes received until they form a complete message
@@ -115,7 +118,7 @@ class Electroniccats_PN7150 : public Mode {
   bool getMessage(uint16_t timeout = 5);  // 5 miliseconds as default to wait for interrupt responses
 
  public:
-  Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress, TwoWire *wire = &Wire);
+  Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin, uint8_t I2Caddress, uint8_t chipModel, TwoWire *wire = &Wire);
   uint8_t begin(void);
   RemoteDevice remoteDevice;
   Protocol protocol;
@@ -128,6 +131,7 @@ class Electroniccats_PN7150 : public Mode {
   int getFirmwareVersion();
   int GetFwVersion();  // Deprecated, use getFirmwareVersion() instead
   uint8_t connectNCI();
+  uint8_t connectNCI_PN7160();
   uint8_t ConfigMode(uint8_t modeSE);  // Deprecated, use configMode(void) instead
   uint8_t configMode(void);
   bool setReaderWriterMode();
