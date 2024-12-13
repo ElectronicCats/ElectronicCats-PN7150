@@ -142,6 +142,7 @@ class Electroniccats_PN7150 : public Mode {
   bool configureSettings_PN7160(void);
   bool configureSettings(uint8_t *nfcuid, uint8_t uidlen);
   bool ConfigureSettings(uint8_t *nfcuid, uint8_t uidlen);  // Deprecated, use configureSettings() instead
+  bool configureSettings_PN7160(uint8_t *uidcf, uint8_t uidlen);
   uint8_t startDiscovery();
   uint8_t StartDiscovery(uint8_t modeSE);  // Deprecated, use startDiscovery() instead
   bool stopDiscovery();
