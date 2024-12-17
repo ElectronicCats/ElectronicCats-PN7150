@@ -55,7 +55,10 @@ Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin,
 }
 
 uint8_t Electroniccats_PN7150::begin() {
+  //_wire->setSDA(0);
+  //_wire->setSCL(1);
   _wire->begin();
+  //_wire->setClock(100000);
   if (_VENpin != 255) {
     digitalWrite(_VENpin, HIGH);
     delay(1);
@@ -75,8 +78,14 @@ uint8_t Electroniccats_PN7150::begin() {
     }
   }
 
-  if (configureSettings()) {
-    return ERROR;
+  if (_chipModel == PN7150) {
+    if (configureSettings()) {
+      return ERROR;
+    }
+  } else if (_chipModel == PN7160) {
+    if (configureSettings_PN7160()) {
+      return ERROR;
+    }
   }
 
   if (configMode()) {
@@ -124,6 +133,9 @@ uint8_t Electroniccats_PN7150::wakeupNCI() {  // the device has to wake up using
       return ERROR;
     }
   }
+  #ifdef DEBUG2
+    Serial.println("WAKEUP NCI RESET SUCCESS");
+  #endif
   return SUCCESS;
 }
 
@@ -266,7 +278,6 @@ uint8_t Electroniccats_PN7150::connectNCI() {
 uint8_t Electroniccats_PN7150::connectNCI_PN7160() {
   uint8_t i = 2;
   uint8_t NCICoreInit[] = {0x20, 0x01, 0x02, 0x00, 0x00};
-  uint16_t NbBytes = 0;
 
   // Check if begin function has been called
   if (this->_hasBeenInitialized) {
@@ -295,43 +306,18 @@ uint8_t Electroniccats_PN7150::connectNCI_PN7160() {
     delay(500);
   }
 
+  getMessage(15);
+  getMessage(15);
+  getMessage(15);
+  
   Serial.println("NCICoreInit");
   (void)writeData(NCICoreInit, sizeof(NCICoreInit));
-  getMessage(100);
+  getMessage(150);
 
-  NbBytes = rxMessageLength;
-  Serial.println("NbBytes ");
-  Serial.println(NbBytes);
+  if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
+    return ERROR;
 
-  if (NbBytes != 0)
-  {
-      /* Is CORE_GENERIC_ERROR_NTF ? */
-      if ((rxBuffer[0] == 0x60) && (rxBuffer[1] == 0x07))
-      {
-          /* Is PN7150B0HN/C11004 Anti-tearing recovery procedure triggered ? */
-          //if ((rxBuffer[3] == 0xE6)) gRfSettingsRestored_flag = true;
-      }
-      /* Is NCI 2.0 CORE_RESET_NTF ? */
-  else if ((rxBuffer[0] == 0x60) && (rxBuffer[1] == 0x00) && (rxBuffer[5] == 0x20))
-      {
-        gNfcController_fw_version[0] = rxBuffer[9];
-        gNfcController_fw_version[1] = rxBuffer[10];
-        gNfcController_fw_version[2] = rxBuffer[11];
-#ifdef DEBUG
-        Serial.print("FW version: ");
-        Serial.print(gNfcController_fw_version[0], HEX);
-        Serial.print(".");
-        Serial.print(gNfcController_fw_version[1], HEX);
-        Serial.print(".");
-        Serial.println(gNfcController_fw_version[2], HEX);
-#endif
-      }
-      else
-      {
-          return ERROR;
-      }
-  }
-    return SUCCESS;
+  return SUCCESS;
 }
 
 /// @brief Update the internal mode, stop discovery, and build the command to configure the PN7150 chip based on the input mode
@@ -946,6 +932,7 @@ bool Electroniccats_PN7150::configureSettings_PN7160(void) {
       return ERROR;
     }
 
+    getMessage(15);
     (void)writeData(NCICoreInit_2_0, sizeof(NCICoreInit_2_0));
     getMessage();
     if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00)) {
