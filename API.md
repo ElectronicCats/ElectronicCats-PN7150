@@ -1,6 +1,6 @@
 # Electroniccats_PN7150 API Reference
 
-The `Electroniccats_PN7150` class enables Arduino library for I2C access to the PN7150 RFID/Near Field Communication chip.
+The `Electroniccats_PN7150` class enables Arduino library for I2C access to the PN7150 and PN7160 RFID/Near Field Communication chip.
 
 ## Class: `Electroniccats_PN7150`
 

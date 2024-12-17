@@ -1,6 +1,6 @@
 ![LibraryBuild](https://github.com/ElectronicCats/ElectronicCats-PN7150/workflows/LibraryBuild/badge.svg?branch=master)
 
-# Electronic Cats PN7150
+# Electronic Cats PN7150 and PN7160
 
 <p align="center">
   <img src="https://github.com/ElectronicCats/ElectronicCats-PN7150/assets/122187221/e2285142-2924-4075-80d5-c9397a16178c" />
@@ -12,11 +12,15 @@
 </a>
 </p>
 
-Library/Driver for NXP PN7150 NFC device
+Library/Driver for NXP PN7150 and PN7160 NFC device
 
-Optimized for fast design-in, NXP's PN7150 NFC solutions fully comply with the NFC Forum, including Linux®, AndroidTM, and WinIoT drivers, and support NCI 1.0 host communication.
+Optimized for fast design-in, NXP's PN7150 and PN7160 NFC solutions fully comply with the NFC Forum, including Linux®, AndroidTM, and WinIoT drivers, and support NCI 1.0 host communication.
 
-PN7150 is the high-performance version of PN7120, the plug-and-play NFC solution for easy integration into any OS environment, reducing Bill of Material (BOM) size and cost. PN71xx controllers are ideal for home automation applications such as gateways and work seamlessly with NFC-connected tags.
+PN7150 is the high-performance version of PN7120, the plug-and-play NFC solution for easy integration into any OS environment, reducing Bill of Material (BOM) size and cost. 
+
+PN7160 is compatible with popular MCUs, including LPC, Kinetis and i.MX. The PN7161 version adds support for Apple ECP.
+
+PN71xx controllers are ideal for home automation applications such as gateways and work seamlessly with NFC-connected tags.
 
 ## API Documentation
 
