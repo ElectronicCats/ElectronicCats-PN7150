@@ -1,0 +1,18 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    -   id: check-yaml
+    -   id: trailing-whitespace  # Elimina los espacios en blanco al final de las líneas
+        files: \.(cpp|h|ino)$  # Aplica a archivos .cpp, .h y .ino
+    -   id: end-of-file-fixer  # Asegura que haya una nueva línea al final de los archivos
+        files: \.(cpp|h|ino)$  # Aplica a archivos .cpp, .h y .ino
+    -   id: no-commit-to-branch # This hook prevents direct commits to main branch
+    -   id: check-added-large-files  # Evita que se suban archivos grandes innecesarios
+        args: ['--maxkb=500']  # Puedes ajustar el tamaño máximo permitido
+-   repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.2  # Use the sha / tag you want to point at
+    hooks:
+    -   id: clang-format  # Formateo de código con clang-format
+        files: \.(cpp|h)$  # Solo se aplica a archivos .cpp y .h
+        exclude: ^examples/  # Excluye la carpeta 'examples'
