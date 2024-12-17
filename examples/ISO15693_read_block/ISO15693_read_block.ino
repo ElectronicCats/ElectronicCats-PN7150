@@ -119,7 +119,7 @@ void loop() {
     if (nfc.remoteDevice.hasMoreTags()) {
       nfc.activateNextTagDiscovery();
     }
-    
+
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("CARD REMOVED!");;

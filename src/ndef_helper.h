@@ -60,7 +60,7 @@ NdefRecord_t DetectNdefRecordType(unsigned char *pNdefRecord);
 unsigned char *GetNextRecord(unsigned char *pNdefRecord);
 
 class RecordType {
- public:
+public:
   enum Value {
     WELL_KNOWN_SIMPLE_TEXT = 0,
     WELL_KNOWN_SIMPLE_URI,

@@ -26,9 +26,7 @@ NdefRecord::NdefRecord() {
   this->textRecord = false;
 }
 
-bool NdefRecord::isTextRecord() {
-  return this->textRecord;
-}
+bool NdefRecord::isTextRecord() { return this->textRecord; }
 
 void NdefRecord::create(NdefRecord_t record) {
   this->_type = record.recordType;
@@ -36,7 +34,8 @@ void NdefRecord::create(NdefRecord_t record) {
   this->payloadLength = record.recordPayloadLength;
 }
 
-String NdefRecord::getHexRepresentation(const byte *data, const uint32_t dataLength) {
+String NdefRecord::getHexRepresentation(const byte *data,
+                                        const uint32_t dataLength) {
   String hexString;
 
   if (dataLength == 0) {
@@ -56,21 +55,13 @@ String NdefRecord::getHexRepresentation(const byte *data, const uint32_t dataLen
   return hexString;
 }
 
-bool NdefRecord::isEmpty() {
-  return this->payload == NULL;
-}
+bool NdefRecord::isEmpty() { return this->payload == NULL; }
 
-bool NdefRecord::isNotEmpty() {
-  return this->payload != NULL;
-}
+bool NdefRecord::isNotEmpty() { return this->payload != NULL; }
 
-NdefRecordType_e NdefRecord::getType() {
-  return this->_type;
-}
+NdefRecordType_e NdefRecord::getType() { return this->_type; }
 
-unsigned char *NdefRecord::getPayload() {
-  return this->payload;
-}
+unsigned char *NdefRecord::getPayload() { return this->payload; }
 
 unsigned short NdefRecord::getPayloadLength() {
   if ((headerFlags & NDEF_RECORD_TNF_MASK) == NDEF_MEDIA) {
@@ -246,7 +237,8 @@ String NdefRecord::getUri() {
 
   unsigned char save = payload[payloadLength];
   payload[payloadLength] = '\0';
-  uri = reinterpret_cast<const char *>(ndef_helper_UriHead(payload[0]), &payload[1]);
+  uri = reinterpret_cast<const char *>(ndef_helper_UriHead(payload[0]),
+                                       &payload[1]);
   payload[payloadLength] = save;
 
   return uri;
@@ -263,14 +255,16 @@ void NdefRecord::setPayload(String payload) {
 
 #ifdef DEBUG3
   Serial.println("Payload length: " + String(length));
-  Serial.println("Payload: '" + getHexRepresentation(this->payload, length) + "'");
+  Serial.println("Payload: '" + getHexRepresentation(this->payload, length) +
+                 "'");
 #endif
 }
 
 void NdefRecord::setPayload(const char *payload, unsigned short payloadLength) {
   this->payload = (unsigned char *)payload;
 #ifdef DEBUG3
-  Serial.println("Payload: '" + getHexRepresentation(this->payload, payloadLength) + "'");
+  Serial.println("Payload: '" +
+                 getHexRepresentation(this->payload, payloadLength) + "'");
 #endif
 }
 
@@ -291,9 +285,7 @@ void NdefRecord::setRecordType(String type) {
   strcpy((char *)this->mimeMediaType, type.c_str());
 }
 
-void NdefRecord::setStatus(uint8_t status) {
-  this->status = status;
-}
+void NdefRecord::setStatus(uint8_t status) { this->status = status; }
 
 void NdefRecord::setLanguageCode(String languageCode) {
   this->textRecord = true;
@@ -374,12 +366,14 @@ const char *NdefRecord::getContent() {
 
 unsigned short NdefRecord::getContentLength() {
   if ((headerFlags & NDEF_RECORD_TNF_MASK) == NDEF_MEDIA) {
-    return getPayloadLength() + typeLength + 3;  // 3 bytes for header, type length and payload length
+    return getPayloadLength() + typeLength +
+           3; // 3 bytes for header, type length and payload length
   }
 
   if (isTextRecord()) {
-    return getPayloadLength() + 4;  // 4 bytes for header, type length, payload length and record type
+    return getPayloadLength() +
+           4; // 4 bytes for header, type length, payload length and record type
   } else {
-    return getPayloadLength() + 2;  // 2 bytes for header and payload length
+    return getPayloadLength() + 2; // 2 bytes for header and payload length
   }
 }

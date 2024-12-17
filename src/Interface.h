@@ -2,11 +2,11 @@
  * Library to get the interface type of the NFC card
  * Authors:
  *        Francisco Torres - Electronic Cats - electroniccats.com
- * 
+ *
  *  August 2023
- * 
- * This code is beerware; if you see me (or any other collaborator 
- * member) at the local, and you've found our code helpful, 
+ *
+ * This code is beerware; if you see me (or any other collaborator
+ * member) at the local, and you've found our code helpful,
  * please buy us a round!
  * Distributed as-is; no warranty is given.
  */
@@ -24,7 +24,7 @@
 #define INTF_TAGCMD 0x80
 
 class Interface {
- public:
+public:
   enum Value {
     UNDETERMINED = 0x0,
     FRAME = 0x1,

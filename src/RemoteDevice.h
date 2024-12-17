@@ -1,12 +1,11 @@
 /**
- * Library to manage the remote device properties, a remote device can be a tag or a reader
- * Authors:
- *        Francisco Torres - Electronic Cats - electroniccats.com
- * 
+ * Library to manage the remote device properties, a remote device can be a tag
+ * or a reader Authors: Francisco Torres - Electronic Cats - electroniccats.com
+ *
  *  August 2023
- * 
- * This code is beerware; if you see me (or any other collaborator 
- * member) at the local, and you've found our code helpful, 
+ *
+ * This code is beerware; if you see me (or any other collaborator
+ * member) at the local, and you've found our code helpful,
  * please buy us a round!
  * Distributed as-is; no warranty is given.
  */
@@ -126,32 +125,32 @@ struct RfIntfCC_t {
 };
 
 class RemoteDevice {
- private:
+private:
   RfIntfCC_t remoteDeviceStruct;
   Tech tech;
   ModeTech modeTech;
 
- public:
+public:
   // Getters for device properties
   unsigned char getInterface() const;
   unsigned char getProtocol() const;
   unsigned char getModeTech() const;
   bool hasMoreTags() const;
   // Getters for device information properties
-  const unsigned char* getSensRes() const;
+  const unsigned char *getSensRes() const;
   unsigned char getSensResLen() const;
-  const unsigned char* getNFCID() const;
+  const unsigned char *getNFCID() const;
   unsigned char getNFCIDLen() const;
-  const unsigned char* getSelRes() const;
+  const unsigned char *getSelRes() const;
   unsigned char getSelResLen() const;
-  const unsigned char* getRats() const;
+  const unsigned char *getRats() const;
   unsigned char getRatsLen() const;
-  const unsigned char* getAttribRes() const;
+  const unsigned char *getAttribRes() const;
   unsigned char getAttribResLen() const;
   unsigned char getBitRate() const;
   unsigned char getAFI() const;
   unsigned char getDSFID() const;
-  const unsigned char* getID() const;
+  const unsigned char *getID() const;
   // Setters
   void setInterface(unsigned char interface);
   void setProtocol(unsigned char protocol);

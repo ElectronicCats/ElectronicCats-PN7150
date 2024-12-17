@@ -3,7 +3,7 @@
  * Authors:
  *        Salvador Mendoza - @Netxing - salmg.net
  *        For Electronic Cats - electroniccats.com
- * 
+ *
  * Updated by Francisco Torres - Electronic Cats - electroniccats.com
  *
  *  March 2020
@@ -63,7 +63,7 @@ void loop() {
       nfc.activateNextTagDiscovery();
       Serial.println("Multiple cards are detected!");
     }
-    
+
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("Card removed!");

@@ -14,7 +14,8 @@
 
 // #include <time.h>
 
-/* LOOP_REF and CLOCK_CALL_TIME must be adapted according to the CPU execution time */
+/* LOOP_REF and CLOCK_CALL_TIME must be adapted according to the CPU execution
+ * time */
 #define LOOP_REF 6800
 #define CLOCK_CALL_TIME 40
 
