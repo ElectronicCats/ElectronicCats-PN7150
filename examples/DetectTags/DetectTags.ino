@@ -3,7 +3,7 @@
  * Authors:
  *        Salvador Mendoza - @Netxing - salmg.net
  *        For Electronic Cats - electroniccats.com
- *
+ * 
  * Updated by Francisco Torres - Electronic Cats - electroniccats.com
  *
  *  March 2020
@@ -19,7 +19,9 @@
 #define PN7150_VEN (13)
 #define PN7150_ADDR (0x28)
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);  // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);  
+//Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160); 
+// creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
 
 // Function prototypes
 String getHexRepresentation(const byte* data, const uint32_t numBytes);
@@ -29,16 +31,18 @@ void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Detect NFC tags with PN7150");
+  Serial.println("Detect NFC tags with PN7150/60");
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board
+  //if (nfc.connectNCI_PN7160()) {  // Wake up the board
     Serial.println("Error while setting up the mode, check connections!");
     while (1)
       ;
   }
 
   if (nfc.configureSettings()) {
+  //if (nfc.configureSettings_PN7160()) {
     Serial.println("The Configure Settings is failed!");
     while (1)
       ;
@@ -63,7 +67,7 @@ void loop() {
       nfc.activateNextTagDiscovery();
       Serial.println("Multiple cards are detected!");
     }
-
+    
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("Card removed!");

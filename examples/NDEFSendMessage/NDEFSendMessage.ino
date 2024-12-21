@@ -23,14 +23,16 @@
 // Function prototypes
 void messageSentCallback();
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);  // Creates a global NFC device interface object, attached to pins 11 (IRQ) and 13 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);  
+//Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160);  
+// Creates a global NFC device interface object, attached to pins 11 (IRQ) and 13 (VEN) and using the default I2C address 0x28
 NdefMessage message;
 
 void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Send NDEF Message with PN7150");
+  Serial.println("Send NDEF Message with PN7150/60");
 
   message.addTextRecord("Hello");                          // English by default
   message.addTextRecord("world", "en");                    // English explicitly, the library only supports two letter language codes (ISO 639-1) by now
