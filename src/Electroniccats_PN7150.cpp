@@ -220,76 +220,21 @@ int Electroniccats_PN7150::GetFwVersion() {
 
 uint8_t Electroniccats_PN7150::connectNCI() {
   uint8_t i = 2;
-  uint8_t NCICoreInit[] = {0x20, 0x01, 0x00};
+  uint8_t NCICoreInit_PN7150[] = {0x20, 0x01, 0x00};
+  uint8_t NCICoreInit_PN7160[] = {0x20, 0x01, 0x02, 0x00, 0x00};
 
   // Check if begin function has been called
   if (this->_hasBeenInitialized) {
     return SUCCESS;
   }
-
-  // Open connection to NXPNCI
-  _wire->begin();
-  if (_VENpin != 255) {
-    digitalWrite(_VENpin, HIGH);
-    delay(1);
-    digitalWrite(_VENpin, LOW);
-    delay(1);
-    digitalWrite(_VENpin, HIGH);
-    delay(3);
-  }
-
-  // Loop until NXPNCI answers
-  while (wakeupNCI() != SUCCESS) {
-    if (i-- == 0)
-      return ERROR;
-    delay(500);
-  }
-
-  (void)writeData(NCICoreInit, sizeof(NCICoreInit));
-  getMessage();
-  if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
-    return ERROR;
-
-  // Retrieve NXP-NCI NFC Controller generation
-  if (rxBuffer[17 + rxBuffer[8]] == 0x08)
-    gNfcController_generation = 1;
-  else if (rxBuffer[17 + rxBuffer[8]] == 0x10)
-    gNfcController_generation = 2;
-
-  // Retrieve NXP-NCI NFC Controller FW version
-  gNfcController_fw_version[0] = rxBuffer[17 + rxBuffer[8]];  // 0xROM_CODE_V
-  gNfcController_fw_version[1] = rxBuffer[18 + rxBuffer[8]];  // 0xFW_MAJOR_NO
-  gNfcController_fw_version[2] = rxBuffer[19 + rxBuffer[8]];  // 0xFW_MINOR_NO
-#ifdef DEBUG
-  Serial.println("0xROM_CODE_V: " + String(gNfcController_fw_version[0], HEX));
-  Serial.println("FW_MAJOR_NO: " + String(gNfcController_fw_version[1], HEX));
-  Serial.println("0xFW_MINOR_NO: " + String(gNfcController_fw_version[2], HEX));
-  Serial.println("gNfcController_generation: " + String(gNfcController_generation, HEX));
-#endif
-
-  return SUCCESS;
-}
-
-uint8_t Electroniccats_PN7150::connectNCI_PN7160() {
-  uint8_t i = 2;
-  uint8_t NCICoreInit[] = {0x20, 0x01, 0x02, 0x00, 0x00};
-
-  // Check if begin function has been called
-  if (this->_hasBeenInitialized) {
-    return SUCCESS;
-  }
-
-  #ifdef DEBUG2
-    Serial.println("Pass check if begin function has been called");
-  #endif 
 
   // Open connection to NXPNCI
   // uses setSDA and set SCL with compatible boards
   //_wire->setSDA(0);  // GPIO 0 como SDA
   //_wire->setSCL(1);  // GPIO 1 como SCL
 
+  // Open connection to NXPNCI
   _wire->begin();
-
   if (_VENpin != 255) {
     digitalWrite(_VENpin, HIGH);
     delay(1);
@@ -300,23 +245,55 @@ uint8_t Electroniccats_PN7150::connectNCI_PN7160() {
   }
 
   // Loop until NXPNCI answers
-  // wakeupNCI() is the same for both chips 
   while (wakeupNCI() != SUCCESS) {
     if (i-- == 0)
       return ERROR;
     delay(500);
   }
 
-  getMessage(15);
-  getMessage(15);
-  getMessage(15);
+  if (_chipModel == PN7150) {
+    #ifdef DEBUG2
+      Serial.println("CHIP MODEL - PN7150");
+    #endif
+
+    (void)writeData(NCICoreInit_PN7150, sizeof(NCICoreInit_PN7150));
+    getMessage();
+    if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
+      return ERROR;
+
+    // Retrieve NXP-NCI NFC Controller generation
+    if (rxBuffer[17 + rxBuffer[8]] == 0x08)
+      gNfcController_generation = 1;
+    else if (rxBuffer[17 + rxBuffer[8]] == 0x10)
+      gNfcController_generation = 2;
+
+    // Retrieve NXP-NCI NFC Controller FW version
+    gNfcController_fw_version[0] = rxBuffer[17 + rxBuffer[8]];  // 0xROM_CODE_V
+    gNfcController_fw_version[1] = rxBuffer[18 + rxBuffer[8]];  // 0xFW_MAJOR_NO
+    gNfcController_fw_version[2] = rxBuffer[19 + rxBuffer[8]];  // 0xFW_MINOR_NO
+  #ifdef DEBUG
+    Serial.println("0xROM_CODE_V: " + String(gNfcController_fw_version[0], HEX));
+    Serial.println("FW_MAJOR_NO: " + String(gNfcController_fw_version[1], HEX));
+    Serial.println("0xFW_MINOR_NO: " + String(gNfcController_fw_version[2], HEX));
+    Serial.println("gNfcController_generation: " + String(gNfcController_generation, HEX));
+  #endif
+
+  } else if (_chipModel == PN7160) {
+    #ifdef DEBUG2
+      Serial.println("CHIP MODEL - PN7160 ");
+    #endif    
+
+    getMessage(15);
+    getMessage(15);
+    getMessage(15);
+    
+    (void)writeData(NCICoreInit_PN7160, sizeof(NCICoreInit_PN7160));
+    getMessage(150);
+
+    if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
+      return ERROR;
+  }
   
-  (void)writeData(NCICoreInit, sizeof(NCICoreInit));
-  getMessage(150);
-
-  if ((rxBuffer[0] != 0x40) || (rxBuffer[1] != 0x01) || (rxBuffer[3] != 0x00))
-    return ERROR;
-
   return SUCCESS;
 }
 

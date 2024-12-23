@@ -131,7 +131,6 @@ class Electroniccats_PN7150 : public Mode {
   int getFirmwareVersion();
   int GetFwVersion();  // Deprecated, use getFirmwareVersion() instead
   uint8_t connectNCI();
-  uint8_t connectNCI_PN7160();
   uint8_t ConfigMode(uint8_t modeSE);  // Deprecated, use configMode(void) instead
   uint8_t configMode(void);
   bool setReaderWriterMode();
