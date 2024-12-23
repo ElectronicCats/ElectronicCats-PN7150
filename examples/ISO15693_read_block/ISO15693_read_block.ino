@@ -19,7 +19,7 @@
 
 #define BLK_NB_ISO15693 (8)  // Block to be read it
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);  
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);
 //Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160);
 // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
 
@@ -123,7 +123,7 @@ void loop() {
     if (nfc.remoteDevice.hasMoreTags()) {
       nfc.activateNextTagDiscovery();
     }
-    
+
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("CARD REMOVED!");;
