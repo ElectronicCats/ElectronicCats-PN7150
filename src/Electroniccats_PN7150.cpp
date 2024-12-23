@@ -57,20 +57,8 @@ Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin,
 
 uint8_t Electroniccats_PN7150::begin() {
 
-  if (_chipModel == PN7150) {
-    #ifdef DEBUG2
-      Serial.println("CHIP MODEL - PN7150");
-    #endif
-    if (connectNCI()) {
-      return ERROR;
-    }
-  } else if (_chipModel == PN7160) {
-    #ifdef DEBUG2
-      Serial.println("CHIP MODEL - PN7160 ");
-    #endif    
-    if (connectNCI_PN7160()) {
-      return ERROR;
-    }
+  if (connectNCI_PN7160()) {
+    return ERROR;
   }
 
   if (_chipModel == PN7150) {
