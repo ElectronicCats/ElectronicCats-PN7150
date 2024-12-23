@@ -1,11 +1,12 @@
 /*
- * NXP PN7150 Driver
+ * NXP PN7150/60 Driver
  * Porting authors:
  *        Salvador Mendoza - @Netxing - salmg.net
  *        Andres Sabas - Electronic Cats - electroniccats.com
  *        Francisco Torres - Electronic Cats - electroniccats.com
+ *        Raul Vargas - Electronic Cats - electroniccats.com
  *
- *  August 2023
+ *  December 2024
  *
  * This code is beerware; if you see me (or any other collaborator
  * member) at the local, and you've found our code helpful,
@@ -55,23 +56,6 @@ Electroniccats_PN7150::Electroniccats_PN7150(uint8_t IRQpin, uint8_t VENpin,
 }
 
 uint8_t Electroniccats_PN7150::begin() {
-  //_wire->setSDA(0);
-  //_wire->setSCL(1);
-  //_wire->begin();
-  //_wire->setClock(100000);
-/*   if (_VENpin != 255) {
-    digitalWrite(_VENpin, HIGH);
-    delay(1);
-    digitalWrite(_VENpin, LOW);
-    delay(1);
-    digitalWrite(_VENpin, HIGH);
-    delay(3);
-  } */
-
-  #ifdef DEBUG2
-    Serial.print("CHIP MODEL 0:PN7150, 1:PN7160 -> ");
-    Serial.println(_chipModel);
-  #endif
 
   if (_chipModel == PN7150) {
     #ifdef DEBUG2
@@ -300,6 +284,7 @@ uint8_t Electroniccats_PN7150::connectNCI_PN7160() {
   #endif 
 
   // Open connection to NXPNCI
+  // uses setSDA and set SCL with compatible boards
   //_wire->setSDA(0);  // GPIO 0 como SDA
   //_wire->setSCL(1);  // GPIO 1 como SCL
 

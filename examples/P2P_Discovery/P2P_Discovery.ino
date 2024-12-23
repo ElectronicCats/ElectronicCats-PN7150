@@ -38,11 +38,13 @@ void setup(){
   
   Serial.println("Initializing...");                
   if (nfc.connectNCI()) { //Wake up the board
+  //if (nfc.connectNCI_PN7160()) {  // Wake up the board
     Serial.println("Error while setting up the mode, check connections!");
     while (1);
   }
   
   if (nfc.configureSettings()) {
+  //if (nfc.configureSettings_PN7160()) {
     Serial.println("The Configure Settings failed!");
     while (1);
   }
