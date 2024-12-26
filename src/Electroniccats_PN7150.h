@@ -148,7 +148,6 @@ public:
   bool configureSettings(void);
   bool
   ConfigureSettings(void); // Deprecated, use configureSettings(void) instead
-  bool configureSettings_PN7160(void);
   bool configureSettings(uint8_t *nfcuid, uint8_t uidlen);
   bool ConfigureSettings(
       uint8_t *nfcuid,
