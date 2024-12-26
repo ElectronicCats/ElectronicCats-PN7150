@@ -20,8 +20,7 @@
 #define BLK_NB_MFC 4                                // Block tat wants to be read
 #define KEY_MFC 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // Default Mifare Classic key
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);
-//Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160);
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);
 // creates a global NFC device interface object, attached to pins 11 (IRQ) and 13 (VEN) and using the default I2C address 0x28
 
 void PrintBuf(const byte* data, const uint32_t numBytes) {  // Print hex data buffer in format
@@ -74,14 +73,12 @@ void setup() {
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board
-  //if (nfc.connectNCI_PN7160()) {  // Wake up the board
     Serial.println("Error while setting up the mode, check connections!");
     while (1)
       ;
   }
 
   if (nfc.configureSettings()) {
-  //if (nfc.configureSettings_PN7160()) {
     Serial.println("The Configure Settings is failed!");
     while (1)
       ;
