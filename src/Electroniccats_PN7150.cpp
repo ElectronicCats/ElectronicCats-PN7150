@@ -228,8 +228,8 @@ uint8_t Electroniccats_PN7150::connectNCI() {
 
   // Open connection to NXPNCI
   // uses setSDA and set SCL with compatible boards
-  _wire->setSDA(0); // GPIO 0 como SDA
-  _wire->setSCL(1); // GPIO 1 como SCL
+  //_wire->setSDA(0);  // GPIO 0 como SDA
+  //_wire->setSCL(1);  // GPIO 1 como SCL
 
   // Open connection to NXPNCI
   _wire->begin();
