@@ -1675,6 +1675,7 @@ void Electroniccats_PN7150::ProcessP2pMode(RfIntf_t RfIntf) {
 void Electroniccats_PN7150::presenceCheck(RfIntf_t RfIntf) {
   bool status;
   uint8_t i;
+  uint8_t idx = 0;
 
   uint8_t NCIPresCheckT1T[] = {0x00, 0x00, 0x07, 0x78, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1750,11 +1751,29 @@ void Electroniccats_PN7150::presenceCheck(RfIntf_t RfIntf) {
       getMessage();
       getMessage(100);
 
+      // Skip leading 0xFF
+      while (idx < (int)rxMessageLength && rxBuffer[idx] == 0xFF) {
+        idx++;
+      }
+
       /* Reactivate target */
       (void)writeData(NCISelectMIFARE, sizeof(NCISelectMIFARE));
       getMessage();
       getMessage(100);
-    } while ((rxBuffer[0] == 0x61) && (rxBuffer[1] == 0x05));
+
+      // Again skip leading 0xFF in the new response
+      idx = 0;
+      while (idx < (int)rxMessageLength && rxBuffer[idx] == 0xFF) {
+        idx++;
+      }
+
+      // Make sure we don't go out of bounds
+      if (idx + 1 >= (int)rxMessageLength) {
+        // If we've run out of data, assume card removed
+        break;
+      }
+
+    } while ((rxBuffer[idx] == 0x61) && (rxBuffer[idx + 1] == 0x05));
     break;
 
   default:
