@@ -138,6 +138,7 @@ public:
       const; // read data from PN7150, returns the amount of bytes read
   int getFirmwareVersion();
   int GetFwVersion(); // Deprecated, use getFirmwareVersion() instead
+  ChipModel getChipModel() { return _chipModel; }
   uint8_t connectNCI();
   uint8_t
   ConfigMode(uint8_t modeSE); // Deprecated, use configMode(void) instead

@@ -53,6 +53,7 @@ uint8_t PCD_MIFARE_scenario(void) {
   /* Write block 4 */
   unsigned char WritePart1[] = {0x10, 0xA0, BLK_NB_MFC};
   unsigned char WritePart2[] = {0x10, DATA_WRITE_MFC};
+  uint8_t expectedResponse;
 
   /* Authenticate */
   status = nfc.readerTagCmd(Auth, sizeof(Auth), Resp, &RespSize);
@@ -77,12 +78,14 @@ uint8_t PCD_MIFARE_scenario(void) {
 
   /* Write block */
   status = nfc.readerTagCmd(WritePart1, sizeof(WritePart1), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  expectedResponse = (nfc.getChipModel() == PN7160) ? 0x14 : 0x00;
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != expectedResponse)) {
     Serial.print("Error writing block!");
     return 3;
   }
   status = nfc.readerTagCmd(WritePart2, sizeof(WritePart2), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  expectedResponse = (nfc.getChipModel() == PN7160) ? 0x14 : 0x00;
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != expectedResponse)) {
     Serial.print("Error writing block!");
     return 4;
   }
