@@ -13,15 +13,25 @@
  */
 
 #include "Electroniccats_PN7150.h"
+
+#define CHIP_MODEL_PN7150
+//#define CHIP_MODEL_PN7160
+
 #define PN7150_IRQ (11)
 #define PN7150_VEN (13)
 #define PN7150_ADDR (0x28)
 
-#define BLK_NB_ISO15693 (8)                         // Block to write
-#define DATA_WRITE_ISO15693 0x11, 0x22, 0x33, 0x44  // Data to write
+#define BLK_NB_ISO15693 (4)                         // Block to write
+#define DATA_WRITE_ISO15693 0x48, 0x49, 0x50, 0x20  // Data to write
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);
 // creates a global NFC device interface object, attached to pins 11 (IRQ) and 13 (VEN) and using the default I2C address 0x28
+#ifdef CHIP_MODEL_PN7160
+    Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160);
+    #define EXPECTED_WRITE_RESPONSE 0x00
+#else
+    Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);
+    #define EXPECTED_WRITE_RESPONSE 0x01
+#endif
 
 void setup() {
   Serial.begin(9600);
@@ -70,11 +80,11 @@ void PCD_ISO15693_scenario(void) {
   unsigned char Resp[256];
   unsigned char RespSize;
   unsigned char ReadBlock[] = {0x02, 0x20, BLK_NB_ISO15693};
-  unsigned char WriteBlock[] = {0x02, 0x21, BLK_NB_ISO15693, DATA_WRITE_ISO15693};
+  unsigned char WriteBlock[] = {0x42, 0x21, BLK_NB_ISO15693, DATA_WRITE_ISO15693};
 
   // Write
   status = nfc.readerTagCmd(WriteBlock, sizeof(WriteBlock), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != EXPECTED_WRITE_RESPONSE)) {
     Serial.print("Error writing block: ");
     Serial.print(ReadBlock[2], HEX);
     Serial.print(" with error: ");
