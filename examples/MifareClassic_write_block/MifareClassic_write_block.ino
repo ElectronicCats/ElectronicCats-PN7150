@@ -32,7 +32,7 @@
     Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7160);
     #define EXPECTED_WRITE_RESPONSE 0x14
 #else
-    Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150);
+    Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);
     #define EXPECTED_WRITE_RESPONSE 0x00
 #endif
 
