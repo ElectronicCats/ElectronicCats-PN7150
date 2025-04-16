@@ -45,7 +45,7 @@ void PCD_ISO14443_3A_scenario(void) {
   unsigned char ReadBlock[] = {0x30, BLK_NB_ISO14443_3A};
   /* Write block */
   unsigned char WriteBlock[] = {0xA2, BLK_NB_ISO14443_3A, DATA_WRITE_ISO14443_3A};
-  
+
   // Determine ChipWriteAck based on chip model
   uint8_t ChipWriteAck = (nfc.getChipModel() == PN7160) ? 0x14 : 0x00;
 
