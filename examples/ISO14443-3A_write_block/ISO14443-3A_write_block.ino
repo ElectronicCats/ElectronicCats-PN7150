@@ -13,6 +13,7 @@
  */
 
 #include "Electroniccats_PN7150.h"
+
 #define PN7150_IRQ (11)
 #define PN7150_VEN (13)
 #define PN7150_ADDR (0x28)
@@ -20,7 +21,7 @@
 #define BLK_NB_ISO14443_3A (5)                         // Block to be read it
 #define DATA_WRITE_ISO14443_3A 0x11, 0x22, 0x33, 0x44  // Data to write
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);  // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150); // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28,specify PN7150 or PN7160 in constructor
 
 void PrintBuf(const byte* data, const uint32_t numBytes) {  // Print hex data buffer in format
   uint32_t szPos;
@@ -45,9 +46,12 @@ void PCD_ISO14443_3A_scenario(void) {
   /* Write block */
   unsigned char WriteBlock[] = {0xA2, BLK_NB_ISO14443_3A, DATA_WRITE_ISO14443_3A};
 
+  // Determine ChipWriteAck based on chip model
+  uint8_t ChipWriteAck = (nfc.getChipModel() == PN7160) ? 0x14 : 0x00;
+
   // Write
   status = nfc.readerTagCmd(WriteBlock, sizeof(WriteBlock), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != ChipWriteAck)) {
     Serial.print("Error writing block: ");
     Serial.print(ReadBlock[1], HEX);
     Serial.print(" with error: ");
@@ -76,7 +80,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Write ISO14443-3A(T2T) data block 5 with PN7150");
+  Serial.println("Write ISO14443-3A(T2T) data block 5 with PN7150/60");
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board

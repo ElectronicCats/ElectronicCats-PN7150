@@ -35,9 +35,12 @@ extern RW_NDEF_Callback_t *updateNdefMessageCallback;
 extern CustomCallback_t *ndefReceivedCallback;
 
 void RW_NDEF_Reset(unsigned char type);
-void RW_NDEF_Read_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size);
-void RW_NDEF_Write_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size);
-bool RW_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, void *pCb);
+void RW_NDEF_Read_Next(unsigned char *pCmd, unsigned short Cmd_size,
+                       unsigned char *Rsp, unsigned short *pRsp_size);
+void RW_NDEF_Write_Next(unsigned char *pCmd, unsigned short Cmd_size,
+                        unsigned char *Rsp, unsigned short *pRsp_size);
+bool RW_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size,
+                        void *pCb);
 void RW_NDEF_RegisterPullCallback(void *pCb);
 void registerUpdateNdefMessageCallback(RW_NDEF_Callback_t function);
 void registerNdefReceivedCallback(CustomCallback_t function);

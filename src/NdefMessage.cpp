@@ -31,7 +31,8 @@ void NdefMessage::begin() {
   registerUpdateNdefMessageCallback(NdefMessage::update);
 }
 
-String NdefMessage::getHexRepresentation(const byte *data, const uint32_t dataLength) {
+String NdefMessage::getHexRepresentation(const byte *data,
+                                         const uint32_t dataLength) {
   String hexString;
 
   if (dataLength == 0) {
@@ -60,25 +61,24 @@ void NdefMessage::update(unsigned char *message, unsigned short messageLength) {
   contentLength = messageLength;
 }
 
-unsigned char *NdefMessage::getContent() {
-  return content;
-}
+unsigned char *NdefMessage::getContent() { return content; }
 
-unsigned short NdefMessage::getContentLength() {
-  return contentLength;
-}
+unsigned short NdefMessage::getContentLength() { return contentLength; }
 
-void NdefMessage::setContent(const char *content, unsigned short contentLength) {
+void NdefMessage::setContent(const char *content,
+                             unsigned short contentLength) {
   NdefMessage::content = (unsigned char *)content;
   NdefMessage::contentLength = contentLength;
 
 #ifdef DEBUG3
   Serial.println("Content length: " + String(contentLength));
-  Serial.println(NdefMessage::getHexRepresentation((byte *)content, (uint32_t)contentLength));
+  Serial.println(NdefMessage::getHexRepresentation((byte *)content,
+                                                   (uint32_t)contentLength));
 #endif
   NdefMessage::updateHeaderFlags();
 #ifdef DEBUG3
-  Serial.println(NdefMessage::getHexRepresentation((byte *)content, (uint32_t)contentLength));
+  Serial.println(NdefMessage::getHexRepresentation((byte *)content,
+                                                   (uint32_t)contentLength));
   Serial.println();
 #endif
   T4T_NDEF_EMU_SetMsg(content, contentLength);
@@ -96,7 +96,7 @@ void NdefMessage::updateHeaderFlags() {
       break;
     }
 
-    if (isHeaderByte(content[i])) {  // New record found
+    if (isHeaderByte(content[i])) { // New record found
 #ifdef DEBUG3
       Serial.println("\t" + String(i) + ": " + String(content[i], HEX) + ",");
 #endif
@@ -109,30 +109,35 @@ void NdefMessage::updateHeaderFlags() {
   // TODO: refactor this to make it more generic
   for (uint8_t i = 0; i < recordCounter; i++) {
     if (i == 0) {
-      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) == NDEF_WELL_KNOWN) {
+      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) ==
+          NDEF_WELL_KNOWN) {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_SINGLE_RECORD;
       } else {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD;
       }
     } else if (i == 1) {
-      if ((content[headersPositions[i - 1]] & NDEF_RECORD_TNF_MASK) == NDEF_WELL_KNOWN) {
+      if ((content[headersPositions[i - 1]] & NDEF_RECORD_TNF_MASK) ==
+          NDEF_WELL_KNOWN) {
         content[headersPositions[i - 1]] = NDEF_HEADER_FLAGS_FIRST_RECORD;
       } else {
         content[headersPositions[i - 1]] = NDEF_HEADER_FLAGS_FIRST_MEDIA_RECORD;
       }
-      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) == NDEF_WELL_KNOWN) {
+      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) ==
+          NDEF_WELL_KNOWN) {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_LAST_RECORD;
       } else {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD;
       }
     } else {
-      if ((content[headersPositions[i - 1]] & NDEF_RECORD_TNF_MASK) == NDEF_WELL_KNOWN) {
+      if ((content[headersPositions[i - 1]] & NDEF_RECORD_TNF_MASK) ==
+          NDEF_WELL_KNOWN) {
         content[headersPositions[i - 1]] = NDEF_HEADER_FLAGS_NEXT_RECORD;
       } else {
         content[headersPositions[i - 1]] = NDEF_HEADER_FLAGS_NEXT_MEDIA_RECORD;
       }
 
-      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) == NDEF_WELL_KNOWN) {
+      if ((content[headersPositions[i]] & NDEF_RECORD_TNF_MASK) ==
+          NDEF_WELL_KNOWN) {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_LAST_RECORD;
       } else {
         content[headersPositions[i]] = NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD;
@@ -149,7 +154,14 @@ void NdefMessage::updateHeaderFlags() {
 }
 
 bool NdefMessage::isHeaderByte(unsigned char byte) {
-  return (byte == NDEF_HEADER_FLAGS_SINGLE_RECORD) || (byte == NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD) || (byte == NDEF_HEADER_FLAGS_FIRST_RECORD) || (byte == NDEF_HEADER_FLAGS_FIRST_MEDIA_RECORD) || (byte == NDEF_HEADER_FLAGS_NEXT_RECORD) || (byte == NDEF_HEADER_FLAGS_NEXT_MEDIA_RECORD) || (byte == NDEF_HEADER_FLAGS_LAST_RECORD) || (byte == NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD);
+  return (byte == NDEF_HEADER_FLAGS_SINGLE_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_FIRST_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_FIRST_MEDIA_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_NEXT_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_NEXT_MEDIA_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_LAST_RECORD) ||
+         (byte == NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD);
 }
 
 NdefRecord_t NdefMessage::getRecord() {
@@ -163,21 +175,13 @@ NdefRecord_t NdefMessage::getRecord() {
   return ndefRecord;
 }
 
-void NdefMessage::getNextRecord() {
-  content = GetNextRecord(content);
-}
+void NdefMessage::getNextRecord() { content = GetNextRecord(content); }
 
-bool NdefMessage::isEmpty() {
-  return NdefMessage::getContent() == NULL;
-}
+bool NdefMessage::isEmpty() { return NdefMessage::getContent() == NULL; }
 
-bool NdefMessage::isNotEmpty() {
-  return NdefMessage::getContent() != NULL;
-}
+bool NdefMessage::isNotEmpty() { return NdefMessage::getContent() != NULL; }
 
-bool NdefMessage::hasRecord() {
-  return NdefMessage::isNotEmpty();
-}
+bool NdefMessage::hasRecord() { return NdefMessage::isNotEmpty(); }
 
 void NdefMessage::addRecord(NdefRecord record) {
 #ifdef DEBUG3
@@ -205,15 +209,18 @@ void NdefMessage::addRecord(NdefRecord record) {
 
   NdefMessage::newContent = new unsigned char[newLength];
   memcpy(newContent, content, contentLength);
-  memcpy(newContent + contentLength, record.getContent(), record.getContentLength());
-  setContent((const char *)newContent, contentLength + record.getContentLength());
+  memcpy(newContent + contentLength, record.getContent(),
+         record.getContentLength());
+  setContent((const char *)newContent,
+             contentLength + record.getContentLength());
 }
 
 void NdefMessage::addTextRecord(String text, String languageCode) {
   NdefRecord record;
   record.setHeaderFlags(NDEF_HEADER_FLAGS_SINGLE_RECORD);
   record.setTypeLength(NDEF_TYPE_LENGTH);
-  record.setPayloadLength(text.length() + 3);  // 3 = status + language code length
+  record.setPayloadLength(text.length() +
+                          3); // 3 = status + language code length
   record.setRecordType(NDEF_TEXT_RECORD_TYPE);
   record.setStatus(NDEF_STATUS);
   record.setLanguageCode(languageCode);
@@ -382,7 +389,8 @@ void NdefMessage::addUriRecord(String uri) {
   addRecord(record);
 }
 
-void NdefMessage::addMimeMediaRecord(String mimeType, const char *payload, unsigned short payloadLength) {
+void NdefMessage::addMimeMediaRecord(String mimeType, const char *payload,
+                                     unsigned short payloadLength) {
   NdefRecord record;
   record.setHeaderFlags(NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD);
   record.setTypeLength(mimeType.length());
@@ -393,10 +401,12 @@ void NdefMessage::addMimeMediaRecord(String mimeType, const char *payload, unsig
   addRecord(record);
 }
 
-void NdefMessage::addWiFiRecord(String ssid, String authenticationType, String encryptionType, String password) {
+void NdefMessage::addWiFiRecord(String ssid, String authenticationType,
+                                String encryptionType, String password) {
   NdefRecord record;
   String mimeType = "application/vnd.wfa.wsc";
-  unsigned char *payload = new unsigned char[ssid.length() + password.length() + 29];  // TODO: 29 must be calculated
+  unsigned char *payload = new unsigned char[ssid.length() + password.length() +
+                                             29]; // TODO: 29 must be calculated
 
   payload[0] = 0x10;
   payload[1] = 0x0E;
@@ -436,7 +446,8 @@ void NdefMessage::addWiFiRecord(String ssid, String authenticationType, String e
 
   record.setHeaderFlags(NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD);
   record.setTypeLength(mimeType.length());
-  record.setPayloadLength(ssid.length() + password.length() + 29);  // TODO: 29 must be calculated
+  record.setPayloadLength(ssid.length() + password.length() +
+                          29); // TODO: 29 must be calculated
   record.setRecordType(mimeType);
   record.setPayload((const char *)payload, sizeof(payload));
 

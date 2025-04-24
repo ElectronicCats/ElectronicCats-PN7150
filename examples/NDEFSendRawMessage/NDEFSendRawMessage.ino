@@ -24,7 +24,8 @@
 // Function prototypes
 void messageSentCallback();
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);  // Creates a global NFC device interface object, attached to pins 11 (IRQ) and 13 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150); // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28,specify PN7150 or PN7160 in constructor
+
 NdefMessage message;
 
 // Three records, "Hello", "world" and Uri "https://www.electroniccats.com"
@@ -53,7 +54,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Send NDEF Message with PN7150");
+  Serial.println("Send NDEF Message with PN7150/60");
 
   message.setContent(ndefMessage, sizeof(ndefMessage));
   nfc.setSendMsgCallback(messageSentCallback);

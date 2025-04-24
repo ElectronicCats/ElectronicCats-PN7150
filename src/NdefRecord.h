@@ -26,7 +26,7 @@
 // #define DEBUG3
 
 class NdefRecord {
- private:
+private:
   NdefRecordType_e _type;
   uint8_t headerFlags;
   uint8_t typeLength;
@@ -43,7 +43,7 @@ class NdefRecord {
   const char *getWellKnownContent();
   const char *getMimeMediaContent();
 
- public:
+public:
   NdefRecord();
   RecordType type;
   void create(NdefRecord_t record);

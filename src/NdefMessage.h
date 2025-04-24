@@ -29,14 +29,22 @@
  * IL = ID Length present
  * TNF = Type Name Format
  */
-#define NDEF_HEADER_FLAGS_SINGLE_RECORD 0xD1        // 1101 0001 -> MB = 1, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 001
-#define NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD 0xD2  // 1101 0010 -> MB = 1, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 010
-#define NDEF_HEADER_FLAGS_FIRST_RECORD 0x91         // 1001 0001 -> MB = 1, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 001
-#define NDEF_HEADER_FLAGS_FIRST_MEDIA_RECORD 0x92   // 1001 0010 -> MB = 1, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 010
-#define NDEF_HEADER_FLAGS_NEXT_RECORD 0x11          // 0001 0001 -> MB = 0, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 001
-#define NDEF_HEADER_FLAGS_NEXT_MEDIA_RECORD 0x12    // 0001 0010 -> MB = 0, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 010
-#define NDEF_HEADER_FLAGS_LAST_RECORD 0x51          // 0101 0001 -> MB = 0, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 001
-#define NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD 0x52    // 0101 0010 -> MB = 0, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 010
+#define NDEF_HEADER_FLAGS_SINGLE_RECORD                                        \
+  0xD1 // 1101 0001 -> MB = 1, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 001
+#define NDEF_HEADER_FLAGS_SINGLE_MEDIA_RECORD                                  \
+  0xD2 // 1101 0010 -> MB = 1, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 010
+#define NDEF_HEADER_FLAGS_FIRST_RECORD                                         \
+  0x91 // 1001 0001 -> MB = 1, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 001
+#define NDEF_HEADER_FLAGS_FIRST_MEDIA_RECORD                                   \
+  0x92 // 1001 0010 -> MB = 1, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 010
+#define NDEF_HEADER_FLAGS_NEXT_RECORD                                          \
+  0x11 // 0001 0001 -> MB = 0, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 001
+#define NDEF_HEADER_FLAGS_NEXT_MEDIA_RECORD                                    \
+  0x12 // 0001 0010 -> MB = 0, ME = 0, CF = 0, SR = 1, IL = 0, TNF = 010
+#define NDEF_HEADER_FLAGS_LAST_RECORD                                          \
+  0x51 // 0101 0001 -> MB = 0, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 001
+#define NDEF_HEADER_FLAGS_LAST_MEDIA_RECORD                                    \
+  0x52 // 0101 0010 -> MB = 0, ME = 1, CF = 0, SR = 1, IL = 0, TNF = 010
 #define NDEF_TYPE_LENGTH 0x01
 #define NDEF_TEXT_RECORD_TYPE 'T'
 #define NDEF_URI_RECORD_TYPE 'U'
@@ -95,7 +103,7 @@
 #define WIFI_ENCRYPT_AES 0x08
 
 class NdefMessage {
- private:
+private:
   static uint8_t recordCounter;
   static unsigned char *content;
   static unsigned short contentLength;
@@ -103,7 +111,8 @@ class NdefMessage {
   static unsigned short newContentLength;
   static void update(unsigned char *message, unsigned short messageLength);
   void getNextRecord();
-  static String getHexRepresentation(const byte *data, const uint32_t dataLength);
+  static String getHexRepresentation(const byte *data,
+                                     const uint32_t dataLength);
   static String newString;
   void addRecord(NdefRecord record);
   static void updateHeaderFlags();
@@ -111,7 +120,7 @@ class NdefMessage {
   uint8_t getWiFiAuthenticationType(String authenticationType);
   uint8_t getWiFiEncryptionType(String encryptionType);
 
- public:
+public:
   NdefMessage();
   void begin();
   static unsigned char *getContent();
@@ -124,8 +133,10 @@ class NdefMessage {
   void addTextRecord(String text);
   void addTextRecord(String text, String languageCode);
   void addUriRecord(String uri);
-  void addMimeMediaRecord(String mimeType, const char *payload, unsigned short payloadLength);
-  void addWiFiRecord(String ssid, String authenticationType, String encryptionType, String password);
+  void addMimeMediaRecord(String mimeType, const char *payload,
+                          unsigned short payloadLength);
+  void addWiFiRecord(String ssid, String authenticationType,
+                     String encryptionType, String password);
 };
 
 #endif

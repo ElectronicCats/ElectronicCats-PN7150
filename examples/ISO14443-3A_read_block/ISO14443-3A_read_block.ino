@@ -19,7 +19,7 @@
 
 #define BLK_NB_ISO14443_3A (5)  // Block to be read it
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);  // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150); // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28,specify PN7150 or PN7160 in constructor
 
 void PrintBuf(const byte* data, const uint32_t numBytes) {  // Print hex data buffer in format
   uint32_t szPos;
@@ -60,7 +60,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Read ISO14443-3A(T2T) data block 5 with PN7150");
+  Serial.println("Read ISO14443-3A(T2T) data block 5 with PN7150/60");
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board

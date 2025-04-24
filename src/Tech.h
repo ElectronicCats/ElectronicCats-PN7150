@@ -2,11 +2,11 @@
  * Library to get the technology of the NFC card
  * Authors:
  *        Francisco Torres - Electronic Cats - electroniccats.com
- * 
+ *
  *  August 2023
- * 
- * This code is beerware; if you see me (or any other collaborator 
- * member) at the local, and you've found our code helpful, 
+ *
+ * This code is beerware; if you see me (or any other collaborator
+ * member) at the local, and you've found our code helpful,
  * please buy us a round!
  * Distributed as-is; no warranty is given.
  */
@@ -25,7 +25,7 @@
 #define TECH_PASSIVE_15693 6
 
 class Tech {
- public:
+public:
   enum Value {
     PASSIVE_NFCA = 0,
     PASSIVE_NFCB = 1,

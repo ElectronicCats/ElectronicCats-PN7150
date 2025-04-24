@@ -13,6 +13,7 @@
  */
 
 #include "Electroniccats_PN7150.h"
+
 #define PN7150_IRQ (11)
 #define PN7150_VEN (13)
 #define PN7150_ADDR (0x28)
@@ -23,7 +24,7 @@
 // Data to be written in the Mifare Classic block
 #define DATA_WRITE_MFC 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);  // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR, PN7150); // creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28,specify PN7150 or PN7160 in constructor
 
 void PrintBuf(const byte* data, const uint32_t numBytes) {  // Print hex data buffer in format
   uint32_t szPos;
@@ -53,6 +54,9 @@ uint8_t PCD_MIFARE_scenario(void) {
   unsigned char WritePart1[] = {0x10, 0xA0, BLK_NB_MFC};
   unsigned char WritePart2[] = {0x10, DATA_WRITE_MFC};
 
+  // Determine ChipWriteAck based on chip model
+  uint8_t ChipWriteAck = (nfc.getChipModel() == PN7160) ? 0x14 : 0x00;
+
   /* Authenticate */
   status = nfc.readerTagCmd(Auth, sizeof(Auth), Resp, &RespSize);
   if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
@@ -76,12 +80,12 @@ uint8_t PCD_MIFARE_scenario(void) {
 
   /* Write block */
   status = nfc.readerTagCmd(WritePart1, sizeof(WritePart1), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != ChipWriteAck)) {
     Serial.print("Error writing block!");
     return 3;
   }
   status = nfc.readerTagCmd(WritePart2, sizeof(WritePart2), Resp, &RespSize);
-  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != 0)) {
+  if ((status == NFC_ERROR) || (Resp[RespSize - 1] != ChipWriteAck)) {
     Serial.print("Error writing block!");
     return 4;
   }
@@ -105,7 +109,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
-  Serial.println("Read mifare classic data block 4 with PN7150");
+  Serial.println("Read mifare classic data block 4 with PN7150/60");
 
   Serial.println("Initializing...");
   if (nfc.connectNCI()) {  // Wake up the board

@@ -18,10 +18,16 @@
 
 #include "tool.h"
 
-const unsigned char T4T_NDEF_EMU_APP_Select[] = {0x00, 0xA4, 0x04, 0x00, 0x07, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01, 0x00};
-const unsigned char T4T_NDEF_EMU_CC[] = {0x00, 0x0F, 0x20, 0x00, 0xFF, 0x00, 0xFF, 0x04, 0x06, 0xE1, 0x04, 0x00, 0xFF, 0x00, 0x00};
-const unsigned char T4T_NDEF_EMU_CC_Select[] = {0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x03};
-const unsigned char T4T_NDEF_EMU_NDEF_Select[] = {0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x04};
+const unsigned char T4T_NDEF_EMU_APP_Select[] = {0x00, 0xA4, 0x04, 0x00, 0x07,
+                                                 0xD2, 0x76, 0x00, 0x00, 0x85,
+                                                 0x01, 0x01, 0x00};
+const unsigned char T4T_NDEF_EMU_CC[] = {0x00, 0x0F, 0x20, 0x00, 0xFF,
+                                         0x00, 0xFF, 0x04, 0x06, 0xE1,
+                                         0x04, 0x00, 0xFF, 0x00, 0x00};
+const unsigned char T4T_NDEF_EMU_CC_Select[] = {0x00, 0xA4, 0x00, 0x0C,
+                                                0x02, 0xE1, 0x03};
+const unsigned char T4T_NDEF_EMU_NDEF_Select[] = {0x00, 0xA4, 0x00, 0x0C,
+                                                  0x02, 0xE1, 0x04};
 const unsigned char T4T_NDEF_EMU_Read[] = {0x00, 0xB0};
 const unsigned char T4T_NDEF_EMU_Write[] = {0x00, 0xD6};
 const unsigned char T4T_NDEF_EMU_OK[] = {0x90, 0x00};
@@ -47,7 +53,8 @@ static T4T_NDEF_EMU_state_t eT4T_NDEF_EMU_State = Ready;
 static T4T_NDEF_EMU_Callback_t *pT4T_NDEF_EMU_PushCb = NULL;
 CustomCallback_t *ndefSendCallback;
 
-static void T4T_NDEF_EMU_FillRsp(unsigned char *pRsp, unsigned short offset, unsigned char length) {
+static void T4T_NDEF_EMU_FillRsp(unsigned char *pRsp, unsigned short offset,
+                                 unsigned char length) {
   if (offset == 0) {
     pRsp[0] = (T4T_NdefMessage_length & 0xFF00) >> 8;
     pRsp[1] = (T4T_NdefMessage_length & 0x00FF);
@@ -73,7 +80,8 @@ static void T4T_NDEF_EMU_FillRsp(unsigned char *pRsp, unsigned short offset, uns
   }
 }
 
-bool T4T_NDEF_EMU_SetMessage(unsigned char *pMessage, unsigned short messageLength, void *pCb) {
+bool T4T_NDEF_EMU_SetMessage(unsigned char *pMessage,
+                             unsigned short messageLength, void *pCb) {
   pT4T_NdefMessage = pMessage;
   T4T_NdefMessage_length = messageLength;
   pT4T_NDEF_EMU_PushCb = (T4T_NDEF_EMU_Callback_t *)pCb;
@@ -90,24 +98,25 @@ void T4T_NDEF_EMU_SetCallback(CustomCallback_t function) {
   ndefSendCallback = function;
 }
 
-void T4T_NDEF_EMU_Reset(void) {
-  eT4T_NDEF_EMU_State = Ready;
-}
+void T4T_NDEF_EMU_Reset(void) { eT4T_NDEF_EMU_State = Ready; }
 
-void T4T_NDEF_EMU_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *pRsp, unsigned short *pRsp_size) {
+void T4T_NDEF_EMU_Next(unsigned char *pCmd, unsigned short Cmd_size,
+                       unsigned char *pRsp, unsigned short *pRsp_size) {
   bool eStatus = false;
 
   if (!memcmp(pCmd, T4T_NDEF_EMU_APP_Select, sizeof(T4T_NDEF_EMU_APP_Select))) {
     *pRsp_size = 0;
     eStatus = true;
     eT4T_NDEF_EMU_State = NDEF_Application_Selected;
-  } else if (!memcmp(pCmd, T4T_NDEF_EMU_CC_Select, sizeof(T4T_NDEF_EMU_CC_Select))) {
+  } else if (!memcmp(pCmd, T4T_NDEF_EMU_CC_Select,
+                     sizeof(T4T_NDEF_EMU_CC_Select))) {
     if (eT4T_NDEF_EMU_State == NDEF_Application_Selected) {
       *pRsp_size = 0;
       eStatus = true;
       eT4T_NDEF_EMU_State = CC_Selected;
     }
-  } else if (!memcmp(pCmd, T4T_NDEF_EMU_NDEF_Select, sizeof(T4T_NDEF_EMU_NDEF_Select))) {
+  } else if (!memcmp(pCmd, T4T_NDEF_EMU_NDEF_Select,
+                     sizeof(T4T_NDEF_EMU_NDEF_Select))) {
     *pRsp_size = 0;
     eStatus = true;
     eT4T_NDEF_EMU_State = NDEF_Selected;

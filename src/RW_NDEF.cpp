@@ -23,7 +23,8 @@
 /* Allocate buffer for NDEF operations */
 unsigned char NdefBuffer[RW_MAX_NDEF_FILE_SIZE];
 
-typedef void RW_NDEF_Fct_t(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size);
+typedef void RW_NDEF_Fct_t(unsigned char *pCmd, unsigned short Cmd_size,
+                           unsigned char *Rsp, unsigned short *pRsp_size);
 
 unsigned char *pRW_NdefMessage;
 unsigned short RW_NdefMessage_size;
@@ -36,7 +37,8 @@ CustomCallback_t *ndefReceivedCallback;
 static RW_NDEF_Fct_t *pReadFct = NULL;
 static RW_NDEF_Fct_t *pWriteFct = NULL;
 
-bool RW_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size, void *pCb) {
+bool RW_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size,
+                        void *pCb) {
   if (Message_size <= RW_MAX_NDEF_FILE_SIZE) {
     pRW_NdefMessage = pMessage;
     RW_NdefMessage_size = Message_size;
@@ -66,40 +68,42 @@ void RW_NDEF_Reset(unsigned char type) {
   pWriteFct = NULL;
 
   switch (type) {
-    case RW_NDEF_TYPE_T1T:
-      RW_NDEF_T1T_Reset();
-      pReadFct = RW_NDEF_T1T_Read_Next;
-      break;
-    case RW_NDEF_TYPE_T2T:
-      RW_NDEF_T2T_Reset();
-      pReadFct = RW_NDEF_T2T_Read_Next;
-      pWriteFct = RW_NDEF_T2T_Write_Next;
-      break;
-    case RW_NDEF_TYPE_T3T:
-      RW_NDEF_T3T_Reset();
-      pReadFct = RW_NDEF_T3T_Read_Next;
-      break;
-    case RW_NDEF_TYPE_T4T:
-      RW_NDEF_T4T_Reset();
-      pReadFct = RW_NDEF_T4T_Read_Next;
-      pWriteFct = RW_NDEF_T4T_Write_Next;
-      break;
-    case RW_NDEF_TYPE_MIFARE:
-      RW_NDEF_MIFARE_Reset();
-      pReadFct = RW_NDEF_MIFARE_Read_Next;
-      pWriteFct = RW_NDEF_MIFARE_Write_Next;
-      break;
-    default:
-      break;
+  case RW_NDEF_TYPE_T1T:
+    RW_NDEF_T1T_Reset();
+    pReadFct = RW_NDEF_T1T_Read_Next;
+    break;
+  case RW_NDEF_TYPE_T2T:
+    RW_NDEF_T2T_Reset();
+    pReadFct = RW_NDEF_T2T_Read_Next;
+    pWriteFct = RW_NDEF_T2T_Write_Next;
+    break;
+  case RW_NDEF_TYPE_T3T:
+    RW_NDEF_T3T_Reset();
+    pReadFct = RW_NDEF_T3T_Read_Next;
+    break;
+  case RW_NDEF_TYPE_T4T:
+    RW_NDEF_T4T_Reset();
+    pReadFct = RW_NDEF_T4T_Read_Next;
+    pWriteFct = RW_NDEF_T4T_Write_Next;
+    break;
+  case RW_NDEF_TYPE_MIFARE:
+    RW_NDEF_MIFARE_Reset();
+    pReadFct = RW_NDEF_MIFARE_Read_Next;
+    pWriteFct = RW_NDEF_MIFARE_Write_Next;
+    break;
+  default:
+    break;
   }
 }
 
-void RW_NDEF_Read_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size) {
+void RW_NDEF_Read_Next(unsigned char *pCmd, unsigned short Cmd_size,
+                       unsigned char *Rsp, unsigned short *pRsp_size) {
   if (pReadFct != NULL)
     pReadFct(pCmd, Cmd_size, Rsp, pRsp_size);
 }
 
-void RW_NDEF_Write_Next(unsigned char *pCmd, unsigned short Cmd_size, unsigned char *Rsp, unsigned short *pRsp_size) {
+void RW_NDEF_Write_Next(unsigned char *pCmd, unsigned short Cmd_size,
+                        unsigned char *Rsp, unsigned short *pRsp_size) {
   if (pWriteFct != NULL)
     pWriteFct(pCmd, Cmd_size, Rsp, pRsp_size);
 }

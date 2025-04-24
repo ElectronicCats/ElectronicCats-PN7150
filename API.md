@@ -1,31 +1,53 @@
 # Electroniccats_PN7150 API Reference
 
-The `Electroniccats_PN7150` class enables Arduino library for I2C access to the PN7150 RFID/Near Field Communication chip.
+The `Electroniccats_PN7150` class enables Arduino library for I2C access to the PN7150 and PN7160 RFID/Near Field Communication chips.
 
 ## Class: `Electroniccats_PN7150`
 
-Include and instantiate the Electroniccats_PN7150 class. Creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Include and instantiate the `Electroniccats_PN7150` class. Creates a global NFC device interface object, specifying the chip model (PN7150 or PN7160), attached to designated pins for IRQ and VEN, and using the default I2C address 0x28.
+
+### Initialization for PN7150
 
 ```c
 #include <Electroniccats_PN7150.h>
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR);
+#define PN7150_IRQ   (8)
+#define PN7150_VEN   (7)
+#define PN7150_ADDR  (0x28)
+
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR); // Creates a global NFC device interface object for PN7150
 ```
 
 - `uint8_t PN7150_IRQ`: IRQ pin for data interrupt.
-- `uint8_t PN7150_VEN`: "Reset" or "Enable" pin for device.
-- `uint8_t PN7150_ADDR`: Hexadecimal address for device, default `0x28` .
+- `uint8_t PN7150_VEN`: "Reset" or "Enable" pin for the device.
+- `uint8_t PN7150_ADDR`: Hexadecimal address for the device, default `0x28`.
 
-### Example
+### Initialization for PN7160
 
 ```c
+#include <Electroniccats_PN7150.h>
 
+#define PN7160_IRQ   (11)
+#define PN7160_VEN   (13)
+#define PN7160_ADDR  (0x28)
+
+Electroniccats_PN7150 nfc(PN7160_IRQ, PN7160_VEN, PN7160_ADDR, PN7160); // Creates a global NFC device interface object for PN7160
+```
+
+- `uint8_t PN7160_IRQ`: IRQ pin for data interrupt.
+- `uint8_t PN7160_VEN`: "Reset" or "Enable" pin for the device.
+- `uint8_t PN7160_ADDR`: Hexadecimal address for the device, default `0x28`.
+- `ChipModel PN7160`: Specifies the chip model as `PN7160`.
+
+### Example for PN7150
+
+```c
 #include "Electroniccats_PN7150.h"
 #define PN7150_IRQ   (8)
 #define PN7150_VEN   (7)
 #define PN7150_ADDR  (0x28)
 
-Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR); // Creates a global NFC device interface object, attached to pins 7 (IRQ) and 8 (VEN) and using the default I2C address 0x28
+Electroniccats_PN7150 nfc(PN7150_IRQ, PN7150_VEN, PN7150_ADDR); // Creates a global NFC device interface object for PN7150
 
 void setup(){ 
   Serial.begin(115200);
@@ -33,7 +55,7 @@ void setup(){
   Serial.println("Detect NFC readers with PN7150");
   uint8_t statusNFC = setupNFC();
   if (!statusNFC) 
-    Serial.println("Set up is ok");
+    Serial.println("Setup is OK");
   else
     Serial.println("Error while setting up mode, check connections!");
 }
@@ -49,6 +71,37 @@ int setupNFC(){
 }
 ```
 
+### Example for PN7160
+
+```c
+#include "Electroniccats_PN7150.h"
+#define PN7160_IRQ   (11)
+#define PN7160_VEN   (13)
+#define PN7160_ADDR  (0x28)
+
+Electroniccats_PN7150 nfc(PN7160_IRQ, PN7160_VEN, PN7160_ADDR, PN7160); // Creates a global NFC device interface object for PN7160
+
+void setup(){ 
+  Serial.begin(115200);
+  while(!Serial);
+  Serial.println("Detect NFC readers with PN7160");
+  uint8_t statusNFC = setupNFC();
+  if (!statusNFC) 
+    Serial.println("Setup is OK");
+  else
+    Serial.println("Error while setting up mode, check connections!");
+}
+
+int setupNFC(){
+  Serial.println("Initializing...");
+  int setupOK = nfc.connectNCI();                     // Wake up the board
+  if (!setupOK){
+    setupOK = nfc.configMode();                       // Set up the configuration mode
+    if (!setupOK) setupOK = nfc.startDiscovery();     // NCI Discovery mode
+  }
+  return setupOK;
+}
+```
 ## Electroniccats_PN7150 Methods
 
 ### Method: `getFirmwareVersion`
