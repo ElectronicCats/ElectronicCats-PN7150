@@ -22,6 +22,8 @@ PN7160 is compatible with popular MCUs, including LPC, Kinetis and i.MX. The PN7
 
 PN71xx controllers are ideal for home automation applications such as gateways and work seamlessly with NFC-connected tags.
 
+✨We want to extend our sincere thanks to Elechouse for their valuable contribution in providing PN7160 boards, which were instrumental in enabling significant improvements to this library. Thanks to their support, we have successfully achieved full and functional integration with the PN7160 module. We deeply appreciate this kind of support from the community. Thank you for helping us continue to improve and expand the capabilities of this library!✨
+
 ## API Documentation
 
 Check the [API Documentation](/API.md) for more information about the methods available in the library.
