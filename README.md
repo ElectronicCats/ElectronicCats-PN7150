@@ -47,6 +47,10 @@ See [**_Electronic Cats CLA_**](https://github.com/ElectronicCats/electroniccats
 
 See the  [**community code of conduct**](https://github.com/ElectronicCats/electroniccats-cla/blob/main/electroniccats-community-code-of-conduct.md) for a vision of the community we want to build and what we expect from it.
 
+## Special Thanks
+
+✨We want to extend our sincere thanks to [Elechouse](https://www.elechouse.com/) for their valuable contribution in providing PN7160 boards, which were instrumental in enabling significant improvements to this library. Thanks to their support, we have successfully achieved full and functional integration with the PN7160 module. We deeply appreciate this kind of support from the community. Thank you for helping us continue to improve and expand the capabilities of this library!✨
+
 ## Maintainer
 
 <a href="https://github.com/sponsors/ElectronicCats">
