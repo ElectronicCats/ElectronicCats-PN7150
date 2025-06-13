@@ -12,6 +12,8 @@
 </a>
 </p>
 
+✨We want to extend our sincere thanks to [Elechouse](https://www.elechouse.com/) for their valuable contribution in providing PN7160 boards, which were instrumental in enabling significant improvements to this library. Thanks to their support, we have successfully achieved full and functional integration with the PN7160 module. We deeply appreciate this kind of support from the community. Thank you for helping us continue to improve and expand the capabilities of this library!✨
+
 Library/Driver for NXP PN7150 and PN7160 NFC device
 
 Optimized for fast design-in, NXP's PN7150 and PN7160 NFC solutions fully comply with the NFC Forum, including Linux®, AndroidTM, and WinIoT drivers, and support NCI 1.0 host communication.
@@ -21,8 +23,6 @@ PN7150 is the high-performance version of PN7120, the plug-and-play NFC solution
 PN7160 is compatible with popular MCUs, including LPC, Kinetis and i.MX. The PN7161 version adds support for Apple ECP.
 
 PN71xx controllers are ideal for home automation applications such as gateways and work seamlessly with NFC-connected tags.
-
-✨We want to extend our sincere thanks to Elechouse for their valuable contribution in providing PN7160 boards, which were instrumental in enabling significant improvements to this library. Thanks to their support, we have successfully achieved full and functional integration with the PN7160 module. We deeply appreciate this kind of support from the community. Thank you for helping us continue to improve and expand the capabilities of this library!✨
 
 ## API Documentation
 
