@@ -1855,7 +1855,7 @@ bool Electroniccats_PN7150::readerReActivate() {
   NCIActivate[4] = remoteDevice.getProtocol();
   NCIActivate[5] = remoteDevice.getInterface();
 
-  (void)writeData(NCIDeactivate, sizeof(NCIDeactivate));
+  (void)writeData(NCIActivate, sizeof(NCIActivate));
   getMessage();
   getMessage(100);
 
