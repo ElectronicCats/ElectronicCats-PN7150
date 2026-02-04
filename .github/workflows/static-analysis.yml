@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 Electronic Cats
+#
+# SPDX-License-Identifier: MIT
+
+name: Static Analysis
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  cppcheck:
+    name: Cppcheck Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          cppcheck --enable=warning,style,performance,portability \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --suppress=unusedFunction \
+            --inline-suppr \
+            -I src/ \
+            src/ 2>&1 | tee cppcheck-report.txt
+
+      - name: Upload cppcheck report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cppcheck-report
+          path: cppcheck-report.txt
+
+  clang-tidy:
+    name: Clang-Tidy Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Create compile_commands.json
+        run: |
+          echo '[' > compile_commands.json
+          first=true
+          for file in src/*.cpp; do
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo ',' >> compile_commands.json
+            fi
+            echo "{\"directory\": \"$(pwd)\", \"command\": \"clang++ -std=c++11 -I src/ -c $file\", \"file\": \"$file\"}" >> compile_commands.json
+          done
+          echo ']' >> compile_commands.json
+
+      - name: Run clang-tidy
+        continue-on-error: true
+        run: |
+          clang-tidy src/*.cpp \
+            -checks='bugprone-*,cert-*,clang-analyzer-*,performance-*,portability-*,-bugprone-easily-swappable-parameters' \
+            -p . \
+            -- -I src/ -std=c++11 2>&1 | tee clang-tidy-report.txt
+
+      - name: Upload clang-tidy report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clang-tidy-report
+          path: clang-tidy-report.txt

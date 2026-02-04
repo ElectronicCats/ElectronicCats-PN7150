@@ -17,30 +17,35 @@
 
 extern unsigned char NdefBuffer[RW_MAX_NDEF_FILE_SIZE];
 
-typedef void RW_NDEF_Callback_t(unsigned char *, unsigned short);
+typedef void RW_NDEF_Callback_t(unsigned char*, unsigned short);
 typedef void CustomCallback_t(void);
 
-#define RW_NDEF_TYPE_T1T 0x1
-#define RW_NDEF_TYPE_T2T 0x2
-#define RW_NDEF_TYPE_T3T 0x3
-#define RW_NDEF_TYPE_T4T 0x4
+#define RW_NDEF_TYPE_T1T    0x1
+#define RW_NDEF_TYPE_T2T    0x2
+#define RW_NDEF_TYPE_T3T    0x3
+#define RW_NDEF_TYPE_T4T    0x4
 #define RW_NDEF_TYPE_MIFARE 0x80
 
-extern unsigned char *pRW_NdefMessage;
+extern unsigned char* pRW_NdefMessage;
 extern unsigned short RW_NdefMessage_size;
 
-extern RW_NDEF_Callback_t *pRW_NDEF_PullCb;
-extern RW_NDEF_Callback_t *pRW_NDEF_PushCb;
-extern RW_NDEF_Callback_t *updateNdefMessageCallback;
-extern CustomCallback_t *ndefReceivedCallback;
+extern RW_NDEF_Callback_t* pRW_NDEF_PullCb;
+extern RW_NDEF_Callback_t* pRW_NDEF_PushCb;
+extern RW_NDEF_Callback_t* updateNdefMessageCallback;
+extern CustomCallback_t* ndefReceivedCallback;
 
 void RW_NDEF_Reset(unsigned char type);
-void RW_NDEF_Read_Next(unsigned char *pCmd, unsigned short Cmd_size,
-                       unsigned char *Rsp, unsigned short *pRsp_size);
-void RW_NDEF_Write_Next(unsigned char *pCmd, unsigned short Cmd_size,
-                        unsigned char *Rsp, unsigned short *pRsp_size);
-bool RW_NDEF_SetMessage(unsigned char *pMessage, unsigned short Message_size,
-                        void *pCb);
-void RW_NDEF_RegisterPullCallback(void *pCb);
+void RW_NDEF_Read_Next(
+    unsigned char* pCmd,
+    unsigned short Cmd_size,
+    unsigned char* Rsp,
+    unsigned short* pRsp_size);
+void RW_NDEF_Write_Next(
+    unsigned char* pCmd,
+    unsigned short Cmd_size,
+    unsigned char* Rsp,
+    unsigned short* pRsp_size);
+bool RW_NDEF_SetMessage(unsigned char* pMessage, unsigned short Message_size, void* pCb);
+void RW_NDEF_RegisterPullCallback(void* pCb);
 void registerUpdateNdefMessageCallback(RW_NDEF_Callback_t function);
 void registerNdefReceivedCallback(CustomCallback_t function);

@@ -16,3 +16,28 @@ repos:
     -   id: clang-format  # Formateo de código con clang-format
         files: \.(cpp|h)$  # Solo se aplica a archivos .cpp y .h
         exclude: ^examples/  # Excluye la carpeta 'examples'
+# cppcheck - static analysis (requires: sudo apt install cppcheck)
+-   repo: local
+    hooks:
+    -   id: cppcheck
+        name: cppcheck
+        entry: cppcheck
+        language: system
+        files: \.(cpp|h)$
+        exclude: ^(examples/|test/)
+        args:
+          - --language=c++
+          - --std=c++11
+          - --enable=warning,performance,portability
+          - --suppress=missingIncludeSystem
+          - --suppress=unusedFunction
+          - --suppress=noConstructor
+          - --suppress=uninitMemberVar
+          - --suppress=constParameterPointer
+          - --suppress=cstyleCast
+          - --suppress=passedByValue
+          - --suppress=unreadVariable
+          - --suppress=unusedStructMember
+          - --error-exitcode=1
+          - -I
+          - src/

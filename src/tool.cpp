@@ -16,22 +16,22 @@
 
 /* LOOP_REF and CLOCK_CALL_TIME must be adapted according to the CPU execution
  * time */
-#define LOOP_REF 6800
+#define LOOP_REF        6800
 #define CLOCK_CALL_TIME 40
 
 void Sleep(unsigned int ms) {
-  int i;
+    int i;
 #ifndef DEBUG_SEMIHOSTING
-  for (i = 0; i < (ms * LOOP_REF); i++)
-    asm("nop");
+    for(i = 0; i < (ms * LOOP_REF); i++)
+        asm("nop");
 #else
-  if (ms <= CLOCK_CALL_TIME) {
-    for (i = 0; i < (ms * LOOP_REF); i++)
-      asm("nop");
-  } else {
-    clock_t time = clock() + ((ms - CLOCK_CALL_TIME) / 10);
-    while (clock() <= time)
-      ;
-  }
+    if(ms <= CLOCK_CALL_TIME) {
+        for(i = 0; i < (ms * LOOP_REF); i++)
+            asm("nop");
+    } else {
+        clock_t time = clock() + ((ms - CLOCK_CALL_TIME) / 10);
+        while(clock() <= time)
+            ;
+    }
 #endif
 }
