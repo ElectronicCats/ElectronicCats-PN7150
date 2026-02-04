@@ -6,3 +6,4 @@ src/sync.ffs_db
 
 # Firmware binaries
 /examples/**/build/
+.pio
