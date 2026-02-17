@@ -147,10 +147,13 @@ void loop() {
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("CARD REMOVED!");
+
+    Serial.println("Restarting...");
+    if (!nfc.reset()) {
+      Serial.println("Restart failed!");
+    }
+    Serial.println("Waiting for an ISO14443-3A Card...");
   }
 
-  Serial.println("Restarting...");
-  nfc.reset();
-  Serial.println("Waiting for an ISO14443-3A Card...");
   delay(500);
 }

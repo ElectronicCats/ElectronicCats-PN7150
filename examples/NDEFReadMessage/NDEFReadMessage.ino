@@ -74,7 +74,9 @@ void loop() {
     nfc.waitForTagRemoval();
     Serial.println("Card removed!");
     Serial.println("Restarting...");
-    nfc.reset();
+    if (!nfc.reset()) {
+      Serial.println("Restart failed!");
+    }
     Serial.print("Waiting for a Card");
   }
 
