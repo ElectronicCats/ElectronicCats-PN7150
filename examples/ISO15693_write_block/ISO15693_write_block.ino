@@ -138,9 +138,13 @@ void loop() {
     Serial.println("Remove the Card");
     nfc.waitForTagRemoval();
     Serial.println("CARD REMOVED!");
-    ;
+
+    Serial.println("Restarting...");
+    if (!nfc.reset()) {
+      Serial.println("Restart failed!");
+    }
+    Serial.println("Waiting for an ISO15693 Card...");
   }
-  nfc.reset();
-  Serial.println("Waiting for an ISO15693 Card...");
+
   delay(500);
 }
